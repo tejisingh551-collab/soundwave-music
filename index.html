@@ -2089,6 +2089,25 @@
         </div>
       </div>
 
+      <!-- Ang-Wise Sri Sehaj Path Filter Bar (Ang 1 to 1430) -->
+      <div class="year-filter-bar" id="angFilterBar" style="display: none; border-color: rgba(245, 158, 11, 0.35); background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.08) 100%);">
+        <div class="year-filter-header">
+          <span class="year-filter-title" style="color: #f59e0b;"><i class="fa-solid fa-book-bookmark"></i> Sri Sehaj Path (Ang 1 to 1430):</span>
+          <span class="year-filter-desc">Ang range select karein aur Sri Guru Granth Sahib Ji ka Sehaj Path sunein</span>
+        </div>
+        <div class="year-chips-wrap">
+          <button class="year-chip active" onclick="selectSehajAng('all', this)" style="border-color: rgba(245, 158, 11, 0.5);">ੴ All Angs</button>
+          <button class="year-chip" onclick="selectSehajAng('1-100', this)">Ang 1 - 100</button>
+          <button class="year-chip" onclick="selectSehajAng('101-250', this)">Ang 101 - 250</button>
+          <button class="year-chip" onclick="selectSehajAng('251-400', this)">Ang 251 - 400</button>
+          <button class="year-chip" onclick="selectSehajAng('401-600', this)">Ang 401 - 600</button>
+          <button class="year-chip" onclick="selectSehajAng('601-800', this)">Ang 601 - 800</button>
+          <button class="year-chip" onclick="selectSehajAng('801-1000', this)">Ang 801 - 1000</button>
+          <button class="year-chip" onclick="selectSehajAng('1001-1200', this)">Ang 1001 - 1200</button>
+          <button class="year-chip" onclick="selectSehajAng('1201-1430', this)">Ang 1201 - 1430 (Bhog)</button>
+        </div>
+      </div>
+
       <!-- Toast Feedback -->
       <div class="toast-msg" id="toastMsg"></div>
 
@@ -2563,12 +2582,20 @@
       hubTitle.textContent = displayName;
       
       const yfb = document.getElementById('yearFilterBar');
+      const afb = document.getElementById('angFilterBar');
       if (key === 'bhangra') {
         if (yfb) yfb.style.display = 'flex';
+        if (afb) afb.style.display = 'none';
         hubSubtitle.textContent = '🥁 High-Energy Punjabi Dhol & Bhangra • Filter By Year • 320kbps HD';
-        document.querySelectorAll('.year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
+        document.querySelectorAll('#yearFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
+      } else if (key === 'sehaj_path') {
+        if (yfb) yfb.style.display = 'none';
+        if (afb) afb.style.display = 'flex';
+        hubSubtitle.textContent = 'ੴ Sri Guru Granth Sahib Ji Sampooran Sehaj Path (Ang 1 to 1430) • Full Episodes';
+        document.querySelectorAll('#angFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else {
         if (yfb) yfb.style.display = 'none';
+        if (afb) afb.style.display = 'none';
         if (key === 'gurbani') {
           hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
         } else if (key === 'sehaj_path') {
@@ -2624,6 +2651,42 @@
       hubSubtitle.textContent = selected.sub + ' • 320kbps HD';
       currentPage = 1;
       fetchSongs(selected.q, 1, false);
+    }
+
+    // Sri Sehaj Path Ang-Wise Filter Handler (Ang 1 to 1430)
+    function selectSehajAng(rangeKey, elem) {
+      document.querySelectorAll('#angFilterBar .year-chip').forEach(c => c.classList.remove('active'));
+      if (elem) elem.classList.add('active');
+
+      if (rangeKey === 'all') {
+        hubTitle.textContent = 'ੴ Sri Guru Granth Sahib Ji Sehaj Path';
+        hubSubtitle.textContent = 'Complete Ang 1 to 1430 • Full Length Audio Episodes';
+        currentPage = 1;
+        fetchSongs('sehaj_path', 1, false);
+      } else {
+        const parts = rangeKey.split('-');
+        const startAng = parseInt(parts[0]);
+        const endAng = parseInt(parts[1]);
+        hubTitle.textContent = `ੴ Sehaj Path: Ang ${startAng} - ${endAng}`;
+        hubSubtitle.textContent = `Sri Guru Granth Sahib Ji Ang ${startAng} to ${endAng} • Full HD Audio`;
+
+        const matching = (currentPlaylist || []).filter(s => {
+          const m = s.name.match(/Ang\s*\(?(\d+)/i);
+          if (m) {
+            const a = parseInt(m[1]);
+            return a >= startAng && a <= endAng;
+          }
+          return false;
+        });
+
+        if (matching.length > 0) {
+          renderSongList(matching);
+          showToast(`Showing ${matching.length} episodes for Ang ${startAng} - ${endAng}`, 2000);
+        } else {
+          currentPage = 1;
+          fetchSongs(`Sehaj Path Ang ${startAng}`, 1, false);
+        }
+      }
     }
 
     // Switch to Favorites View with Clean Empty State
@@ -3005,6 +3068,7 @@
             <div class="song-title">${song.name}</div>
             <div class="song-artist">${song.artist}</div>
           </div>
+          ${song.ang ? `<span class="badge-sikh" style="font-size:0.75rem;padding:0.25rem 0.55rem;white-space:nowrap;"><i class="fa-solid fa-book-open"></i> ${song.ang}</span>` : ''}
           ${yearStr ? `<span class="song-year-badge">${yearStr}</span>` : ''}
           ${durStr ? `<span class="song-duration-badge">${durStr}</span>` : ''}
           <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${idx})">

@@ -171,6 +171,9 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
                     album = clean_string(r.get('album', ''))
                     year = clean_string(str(r.get('year', '') or ''))
                     
+                    ang_match = re.search(r'Ang\s*\(?([0-9\s\-to]+)\)?', clean_display_title, re.IGNORECASE)
+                    ang_badge = ('Ang ' + ang_match.group(1).strip()) if ang_match else ''
+                    
                     songs.append({
                         'id': r.get('id', ''),
                         'name': clean_display_title,
@@ -179,10 +182,25 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
                         'image': img,
                         'audioUrl': audio_url,
                         'duration': duration,
-                        'year': year
+                        'year': year,
+                        'ang': ang_badge
                     })
         except Exception as e:
             print(f"Search error on page {p_num}:", e)
+
+    # For Sehaj Path, sort in exact sequential order from Ang 1 to Ang 1430
+    if q_lower == 'sehaj_path' or 'sehaj' in q_lower:
+        def get_ang_val(s):
+            name = s.get('name', '')
+            m = re.search(r'Ang\s*\(?(\d+)', name, re.IGNORECASE)
+            if m:
+                return int(m.group(1))
+            m = re.search(r'Part\s*(\d+)', name, re.IGNORECASE)
+            if m:
+                return int(m.group(1)) * 18
+            return 9999
+        songs.sort(key=get_ang_val)
+
     return songs
 
 class MusicAppHandler(SimpleHTTPRequestHandler):
