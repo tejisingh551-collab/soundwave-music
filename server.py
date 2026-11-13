@@ -19,17 +19,20 @@ CIPHER = des(DES_KEY, ECB, b"\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
 
 # High-accuracy queries matching JioSaavn indexing
 TRENDING_PRESETS = {
-    "home": "Top Hindi Songs",
+    "home": "Latest Hindi Songs 2026 Hits",
     "new": "Latest New Releases 2026",
-    "hindi": "Top Hindi Songs",
-    "punjabi": "Top Punjabi Hits",
-    "english": "English Hits",
-    "romantic": "Romantic Hindi",
-    "lofi": "Hindi Lofi",
-    "party": "Party Hindi",
-    "haryanvi": "Top Haryanvi",
+    "hindi": "Top Hindi Songs Bollywood Chartbusters",
+    "punjabi": "Top Punjabi Hits 2026",
+    "english": "Billboard Hot 100 English Hits",
+    "romantic": "Romantic Hindi Love Songs",
+    "lofi": "Hindi Lofi Midnight Chill",
+    "party": "Party Hindi Dance Bangers",
+    "haryanvi": "Top Haryanvi Songs",
     "bhojpuri": "Top Bhojpuri Songs",
     "gurbani": "Shabad Gurbani Kirtan",
+    "sehaj_path": "Sehaj Paath Ang",
+    "nitnem": "Nitnem Sahib Full Path",
+    "sukhmani": "Sukhmani Sahib Full Path",
     "dhadrianwale": "Bhai Ranjit Singh Ji Dhadrianwale",
     "japji_sartaj": "Satinder Sartaaj Japji Sahib",
     "sleeping": "Relaxing Sleep",
@@ -58,7 +61,7 @@ def clean_string(s):
         return ""
     return s.replace('&quot;', '"').replace('&amp;', '&').replace('&#039;', "'").strip()
 
-def search_jiosaavn(query, count=45):
+def search_jiosaavn(query, page=1, fetch_depth=2):
     if not query:
         query = "Trending Hindi"
     
@@ -66,6 +69,15 @@ def search_jiosaavn(query, count=45):
     if ('japji' in q_lower and ('sartaj' in q_lower or 'sartaaj' in q_lower)) or q_lower == 'japji_sartaj':
         query = "Satinder Sartaaj Japji Sahib"
         q_lower = "japji_sartaj"
+    elif 'sehaj' in q_lower or q_lower == 'sehaj_path':
+        query = "Sehaj Paath Ang"
+        q_lower = "sehaj_path"
+    elif 'sukhmani' in q_lower or q_lower == 'sukhmani':
+        query = "Sukhmani Sahib Full Path"
+        q_lower = "sukhmani"
+    elif 'nitnem' in q_lower or q_lower == 'nitnem':
+        query = "Nitnem Sahib Full Path"
+        q_lower = "nitnem"
     elif 'bhojpuri' in q_lower:
         query = "Top Bhojpuri Songs"
         q_lower = "bhojpuri"
@@ -73,104 +85,122 @@ def search_jiosaavn(query, count=45):
         query = TRENDING_PRESETS[q_lower]
         
     encoded_query = urllib.parse.quote(query)
-    url = f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n={count}&p=1&_marker=0&ctx=android&q={encoded_query}"
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
     
     songs = []
     seen_titles = set()
     seen_images = set()
     
-    try:
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            content = resp.read().decode('utf-8', errors='ignore')
-            data = json.loads(content)
-            results = data.get('results', [])
+    # Massive Library Expansion: fetch multiple pages (e.g. p=1 and p=2) to get 80-100+ raw tracks
+    pages_to_fetch = [page]
+    if fetch_depth > 1:
+        pages_to_fetch.append(page + 1)
+        if q_lower in ['home', 'punjabi', 'hindi', 'bhangra']:
+            pages_to_fetch.append(page + 2)
             
-            for r in results:
-                raw_title = clean_string(r.get('song', '') or r.get('title', ''))
-                if not raw_title:
-                    continue
+    for p_num in pages_to_fetch:
+        url = f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=50&p={p_num}&_marker=0&ctx=android&q={encoded_query}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+        
+        try:
+            with urllib.request.urlopen(req, timeout=9) as resp:
+                content = resp.read().decode('utf-8', errors='ignore')
+                data = json.loads(content)
+                results = data.get('results', [])
                 
-                # Filter out Ringtones, Ringtunes, Teasers, Promos, Dialogue tracks
-                title_lower = raw_title.lower()
-                bad_keywords = [
-                    'ringtone', 'ringtune', 'ring tone', 'ring tune', 'caller tune', 'callertune',
-                    'dialogue', 'teaser', 'trailer', 'promo', 'bgm', 'theme music', 'hook step',
-                    'status sound', 'compilation', 'jukebox'
-                ]
-                if any(bad in title_lower for bad in bad_keywords):
-                    continue
-                
-                # Duration filter: Allow full-length diwans (up to 3 hrs), sleep music (up to 1 hr), gurbani (up to 40 mins)
-                duration = int(r.get('duration', 0)) if r.get('duration') else 0
-                if any(k in q_lower for k in ['dhadrianwale', 'dhadrianwala', 'diwan', 'katha']):
-                    max_dur = 10800
-                elif any(k in q_lower for k in ['gurbani', 'shabad', 'kirtan', 'simran', 'nitnem', 'waheguru', 'japji', 'sartaj', 'sartaaj']):
-                    max_dur = 4200
-                elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing']):
-                    max_dur = 3600
-                else:
-                    max_dur = 600
-
-                if duration < 45 or duration > max_dur:
-                    continue
-                
-                # Clean display title (strip "Trending Version" marketing tags)
-                clean_display_title = re.sub(r'\s*[\(\[-]?\s*trending version\s*[\)\]-]?', '', raw_title, flags=re.IGNORECASE).strip()
-                if not clean_display_title:
-                    clean_display_title = raw_title
-
-                # Deduplication by normalized base title
-                base_title = re.sub(r'\(.*?\)|\[.*?\]', '', raw_title).lower()
-                base_title = re.sub(r'\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b', '', base_title)
-                base_title = re.sub(r'[^a-z0-9]', '', base_title).strip()
-
-                if not base_title or base_title in seen_titles:
-                    continue
-                seen_titles.add(base_title)
-
-                # Decrypt audio stream
-                enc_url = r.get('encrypted_media_url')
-                if not enc_url:
-                    continue
-                audio_url = decrypt_url(enc_url)
-                if not audio_url:
-                    continue
-                
-                # Distinct image deduplication: prevent repeating identical compilation album covers
-                img = r.get('image', '').replace('150x150', '500x500')
-                if not img or 'default' in img.lower() or img in seen_images:
-                    img = ""
-                else:
-                    seen_images.add(img)
-                
-                artist = clean_string(r.get('primary_artists', '') or r.get('singers', ''))
-                album = clean_string(r.get('album', ''))
-                year = clean_string(str(r.get('year', '') or ''))
-                
-                songs.append({
-                    'id': r.get('id', ''),
-                    'name': clean_display_title,
-                    'artist': artist,
-                    'album': album,
-                    'image': img,
-                    'audioUrl': audio_url,
-                    'duration': duration,
-                    'year': year
-                })
-    except Exception as e:
-        print("Search error:", e)
+                for r in results:
+                    raw_title = clean_string(r.get('song', '') or r.get('title', ''))
+                    if not raw_title:
+                        continue
+                    
+                    # Filter out Ringtones, Ringtunes, Teasers, Promos, Dialogue tracks
+                    title_lower = raw_title.lower()
+                    bad_keywords = [
+                        'ringtone', 'ringtune', 'ring tone', 'ring tune', 'caller tune', 'callertune',
+                        'dialogue', 'teaser', 'trailer', 'promo', 'bgm', 'theme music', 'hook step',
+                        'status sound', 'compilation', 'jukebox'
+                    ]
+                    if any(bad in title_lower for bad in bad_keywords):
+                        continue
+                    
+                    # Duration filter: Allow complete 5-hour Sehaj Path episodes, 90-min Sukhmani Sahib, 2-hr Nitnem, 3-hr Diwans
+                    duration = int(r.get('duration', 0)) if r.get('duration') else 0
+                    if any(k in q_lower for k in [
+                        'sehaj', 'paath', 'path', 'sukhmani', 'nitnem', 'gurbani', 'shabad', 'kirtan', 
+                        'simran', 'waheguru', 'japji', 'jaap', 'chaupai', 'rehras', 'sohila', 
+                        'dukh bhanjani', 'asa di war', 'asa di vaar', 'dhadrianwale', 'dhadrianwala', 'diwan', 'katha'
+                    ]):
+                        max_dur = 18000 # 5 Hours (Never cut off full Gurbani Baanis or Sehaj Path!)
+                    elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing']):
+                        max_dur = 3600
+                    else:
+                        max_dur = 900 # 15 minutes for general songs
+    
+                    if duration < 45 or duration > max_dur:
+                        continue
+                    
+                    # Clean display title (strip "Trending Version" marketing tags)
+                    clean_display_title = re.sub(r'\s*[\(\[-]?\s*trending version\s*[\)\]-]?', '', raw_title, flags=re.IGNORECASE).strip()
+                    if not clean_display_title:
+                        clean_display_title = raw_title
+    
+                    # Deduplication by normalized base title
+                    base_title = re.sub(r'\(.*?\)|\[.*?\]', '', raw_title).lower()
+                    base_title = re.sub(r'\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b', '', base_title)
+                    base_title = re.sub(r'[^a-z0-9]', '', base_title).strip()
+    
+                    if not base_title or base_title in seen_titles:
+                        continue
+                    seen_titles.add(base_title)
+    
+                    # Decrypt audio stream
+                    enc_url = r.get('encrypted_media_url')
+                    if not enc_url:
+                        continue
+                    audio_url = decrypt_url(enc_url)
+                    if not audio_url:
+                        continue
+                    
+                    # Distinct image deduplication: prevent repeating identical compilation album covers
+                    img = r.get('image', '').replace('150x150', '500x500')
+                    if not img or 'default' in img.lower() or img in seen_images:
+                        img = ""
+                    else:
+                        seen_images.add(img)
+                    
+                    artist = clean_string(r.get('primary_artists', '') or r.get('singers', ''))
+                    album = clean_string(r.get('album', ''))
+                    year = clean_string(str(r.get('year', '') or ''))
+                    
+                    songs.append({
+                        'id': r.get('id', ''),
+                        'name': clean_display_title,
+                        'artist': artist,
+                        'album': album,
+                        'image': img,
+                        'audioUrl': audio_url,
+                        'duration': duration,
+                        'year': year
+                    })
+        except Exception as e:
+            print(f"Search error on page {p_num}:", e)
     return songs
 
 class MusicAppHandler(SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=DIRECTORY, **kwargs)
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path == '/api/search':
             query_params = urllib.parse.parse_qs(parsed.query)
             q = query_params.get('q', [''])[0]
-            songs = search_jiosaavn(q)
+            try:
+                p = int(query_params.get('p', ['1'])[0])
+            except Exception:
+                p = 1
+            songs = search_jiosaavn(q, page=p, fetch_depth=2 if p == 1 else 1)
             
-            body = json.dumps({'success': True, 'results': songs}).encode('utf-8')
+            body = json.dumps({'success': True, 'page': p, 'results': songs}).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(body)))
@@ -286,7 +316,11 @@ class MusicAppHandler(SimpleHTTPRequestHandler):
             self.send_error(404, "Not found")
 
 if __name__ == '__main__':
-    server = ThreadingHTTPServer(('0.0.0.0', PORT), MusicAppHandler)
-    server.daemon_threads = True
-    print(f"TejiMusic Server ready on http://localhost:{PORT}")
-    server.serve_forever()
+    try:
+        server = ThreadingHTTPServer(('0.0.0.0', PORT), MusicAppHandler)
+        server.daemon_threads = True
+        print(f"TejiMusic Server ready on http://localhost:{PORT}", flush=True)
+        server.serve_forever()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()

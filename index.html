@@ -1107,6 +1107,31 @@
       gap: 0.65rem;
     }
 
+    /* Load More Button */
+    .btn-load-more {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #fff;
+      padding: 0.85rem 2.2rem;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      font-family: inherit;
+    }
+    .btn-load-more:hover {
+      background: var(--accent-grad);
+      border-color: transparent;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--accent-glow);
+    }
+
     /* Frosted Glass Cards with Hover Elevation */
     .song-card {
       background: var(--card-bg);
@@ -1903,8 +1928,18 @@
         <div class="nav-group">
           <div class="nav-item" id="nav-gurbani" onclick="navSelect('gurbani', 'ੴ Punjabi Shabad Gurbani', this)">
             <i class="fa-solid fa-hands-praying" style="color: #f59e0b;"></i>
-            <span>Gurbani</span>
+            <span>Gurbani Kirtan</span>
             <span class="badge-sikh">ੴ Pure</span>
+          </div>
+          <div class="nav-item" id="nav-sehaj-path" onclick="navSelect('sehaj_path', 'ੴ Sri Guru Granth Sahib Ji Sehaj Path', this)">
+            <i class="fa-solid fa-book-bookmark" style="color: #f59e0b;"></i>
+            <span>Sri Sehaj Path</span>
+            <span class="badge-sikh">ੴ Ang 1-1430</span>
+          </div>
+          <div class="nav-item" id="nav-nitnem" onclick="navSelect('nitnem', 'ੴ Sampooran Nitnem & Sukhmani Sahib', this)">
+            <i class="fa-solid fa-sun" style="color: #f59e0b;"></i>
+            <span>Nitnem & Sukhmani</span>
+            <span class="badge-sikh">ੴ Full Path</span>
           </div>
           <div class="nav-item" id="nav-dhadrianwale" onclick="navSelect('dhadrianwale', 'ੴ Bhai Ranjit Singh Ji Dhadrianwale', this)">
             <i class="fa-solid fa-microphone-lines" style="color: #f59e0b;"></i>
@@ -2064,6 +2099,13 @@
 
       <!-- Song List Grid -->
       <div class="song-list" id="songList"></div>
+
+      <!-- Load More Songs Button Container -->
+      <div id="loadMoreContainer" style="text-align: center; margin: 2.2rem 0 1rem; display: none;">
+        <button class="btn-load-more" id="loadMoreBtn" onclick="loadMoreSongs()">
+          <i class="fa-solid fa-cloud-arrow-down"></i> Load More Songs (+40)
+        </button>
+      </div>
 
     </main>
   </div>
@@ -2529,6 +2571,10 @@
         if (yfb) yfb.style.display = 'none';
         if (key === 'gurbani') {
           hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
+        } else if (key === 'sehaj_path') {
+          hubSubtitle.textContent = 'ੴ Sri Guru Granth Sahib Ji Sampooran Sehaj Path (Ang 1 to 1430) • Full Episodes';
+        } else if (key === 'nitnem') {
+          hubSubtitle.textContent = 'ੴ Panj Bania Da Path & Complete Sukhmani Sahib • Full Length Audio';
         } else if (key === 'dhadrianwale') {
           hubSubtitle.textContent = 'ੴ Purn Diwan, Gurmat Veechar & Shabad Kirtan • Full HD Audio Stream';
         } else if (key === 'japji_sartaj') {
@@ -2550,7 +2596,8 @@
       const bd = document.getElementById('sidebarBackdrop');
       if (bd) bd.classList.remove('open');
 
-      fetchSongs(key);
+      currentPage = 1;
+      fetchSongs(key, 1, false);
     }
 
     // Bhangra Year-Wise Selection Handler
@@ -2575,7 +2622,8 @@
       const selected = yearMap[yearKey] || yearMap['all'];
       hubTitle.textContent = selected.title;
       hubSubtitle.textContent = selected.sub + ' • 320kbps HD';
-      fetchSongs(selected.q);
+      currentPage = 1;
+      fetchSongs(selected.q, 1, false);
     }
 
     // Switch to Favorites View with Clean Empty State
@@ -2585,6 +2633,8 @@
 
       const yfb = document.getElementById('yearFilterBar');
       if (yfb) yfb.style.display = 'none';
+      const lmc = document.getElementById('loadMoreContainer');
+      if (lmc) lmc.style.display = 'none';
 
       document.getElementById('sidebar').classList.remove('open');
       const bd = document.getElementById('sidebarBackdrop');
@@ -2606,10 +2656,10 @@
     }
 
     const CATEGORY_TITLES = {
-      home: '🏠 Home Trending Hits',
+      home: '🏠 Home Trending Hits 2026',
       new: '✨ New Releases 2026',
       hindi: '🇮🇳 Hindi Top 50 Chartbusters',
-      punjabi: '🌾 Punjabi Hits',
+      punjabi: '🌾 Punjabi Hits 2026',
       english: '🌍 English Pop Hits',
       romantic: '❤️ Romantic Melodies',
       lofi: '☕ Lo-Fi Midnight Chill',
@@ -2617,6 +2667,8 @@
       haryanvi: '🚜 Haryanvi Hits',
       bhojpuri: '🌶️ Bhojpuri Hits',
       gurbani: 'ੴ Punjabi Shabad Gurbani',
+      sehaj_path: 'ੴ Sri Guru Granth Sahib Ji Sehaj Path',
+      nitnem: 'ੴ Sampooran Nitnem & Sukhmani Sahib',
       dhadrianwale: 'ੴ Bhai Ranjit Singh Ji Dhadrianwale',
       japji_sartaj: 'ੴ Japji Sahib (Satinder Sartaaj)',
       sleeping: '🌙 Sleeping Music & Relaxation',
@@ -2749,37 +2801,48 @@
       showToast('Playing All Tracks In Sequence 🎵');
     }
 
-    // Fetch Songs with Deduplication & Cleanup
-    async function fetchSongs(query) {
-      if (!query || !query.trim()) return;
+    // Fetch Songs with Multi-Page Expansion & Infinite Scrolling
+    let currentQuery = 'home';
+    let currentPage = 1;
+    let isLoadingMore = false;
 
-      loader.classList.add('active');
-      songList.innerHTML = '';
+    async function fetchSongs(query, page = 1, isAppend = false) {
+      if (!query || !query.trim()) return;
+      currentQuery = query;
+      currentPage = page;
+
+      if (!isAppend) {
+        loader.classList.add('active');
+        songList.innerHTML = '';
+        currentPlaylist = [];
+        const lmc = document.getElementById('loadMoreContainer');
+        if (lmc) lmc.style.display = 'none';
+      } else {
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (loadMoreBtn) loadMoreBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Loading More Songs...';
+      }
 
       let results = [];
 
       try {
-        const localApi = `/api/search?q=${encodeURIComponent(query)}`;
+        const localApi = `/api/search?q=${encodeURIComponent(query)}&p=${page}`;
         const res = await fetch(localApi);
         if (res.ok) {
           const json = await res.json();
           if (json.results && json.results.length > 0) {
             // Client-side safety filter: remove duplicates and ringtunes
-            const seenTitles = new Set();
+            const seenTitles = new Set(isAppend ? currentPlaylist.map(s => s.name.toLowerCase().trim()) : []);
             const qLower = (query || '').toLowerCase();
-            const isDhadrian = qLower.includes('dhadrianwale') || qLower.includes('dhadrianwala') || qLower.includes('diwan') || qLower.includes('katha');
-            const isGurbani = qLower.includes('gurbani') || qLower.includes('shabad') || qLower.includes('kirtan') || qLower.includes('simran') || qLower.includes('nitnem') || qLower.includes('waheguru') || qLower.includes('japji') || qLower.includes('sartaj') || qLower.includes('sartaaj');
+            const isDevotional = ['sehaj', 'paath', 'path', 'sukhmani', 'nitnem', 'gurbani', 'shabad', 'kirtan', 'simran', 'waheguru', 'japji', 'jaap', 'chaupai', 'rehras', 'sohila', 'dukh bhanjani', 'asa di war', 'asa di vaar', 'dhadrianwale', 'dhadrianwala', 'diwan', 'katha'].some(k => qLower.includes(k));
             const isSleep = qLower.includes('sleep') || qLower.includes('sleeping') || qLower.includes('ambient') || qLower.includes('meditation') || qLower.includes('relaxing');
 
-            let maxDur = 600;
-            if (isDhadrian) maxDur = 10800;
+            let maxDur = 900;
+            if (isDevotional) maxDur = 18000; // 5 hours - Full paths never cut!
             else if (isSleep) maxDur = 3600;
-            else if (isGurbani) maxDur = 4200;
 
             results = json.results.filter(s => {
               if (!s || !s.name) return false;
               const dur = parseInt(s.duration || 0);
-              // Filter out short previews (< 45s) and overly long tracks beyond category limit
               if (dur < 45 || dur > maxDur) return false;
 
               const lower = s.name.toLowerCase();
@@ -2787,7 +2850,6 @@
                 return false;
               }
 
-              // Deduplicate normalized base title (e.g. Vaaroon Trending Version -> vaaroon)
               const base = s.name.replace(/\(.*?\)|\[.*?\]/g, '')
                 .replace(/\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b/gi, '')
                 .replace(/[^a-zA-Z0-9]/g, '')
@@ -2806,7 +2868,7 @@
 
       loader.classList.remove('active');
 
-      if (results.length === 0) {
+      if (!isAppend && results.length === 0) {
         songList.innerHTML = `
           <div class="empty-state-card">
             <div class="empty-icon-wrap"><i class="fa-solid fa-music"></i></div>
@@ -2817,9 +2879,56 @@
         return;
       }
 
-      currentPlaylist = results;
-      renderSongList(currentPlaylist);
+      if (isAppend) {
+        const existingIds = new Set(currentPlaylist.map(s => s.id));
+        const newUnique = results.filter(s => !existingIds.has(s.id));
+        if (newUnique.length > 0) {
+          currentPlaylist = [...currentPlaylist, ...newUnique];
+          renderSongList(currentPlaylist);
+          showToast(`+${newUnique.length} More Songs Added! Total: ${currentPlaylist.length} 🎵`, 2000);
+        } else {
+          showToast('All songs for this category loaded! 🎉', 2000);
+        }
+      } else {
+        currentPlaylist = results;
+        renderSongList(currentPlaylist);
+      }
+
+      updateLoadMoreUI(results.length);
     }
+
+    function updateLoadMoreUI(lastBatchCount) {
+      const lmc = document.getElementById('loadMoreContainer');
+      const btn = document.getElementById('loadMoreBtn');
+      if (!lmc || !btn) return;
+
+      const isSpecialTab = hubTitle.textContent.includes('Favorites') || hubTitle.textContent.includes('Recently Played');
+      if (isSpecialTab || !currentPlaylist || currentPlaylist.length < 15 || lastBatchCount === 0) {
+        lmc.style.display = 'none';
+      } else {
+        lmc.style.display = 'block';
+        btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-down"></i> Load More Songs (+40) <span style="font-size:0.75rem;opacity:0.8;">[Current: ${currentPlaylist.length}]</span>`;
+      }
+    }
+
+    function loadMoreSongs() {
+      if (isLoadingMore) return;
+      isLoadingMore = true;
+      currentPage++;
+      fetchSongs(currentQuery, currentPage, true).finally(() => {
+        isLoadingMore = false;
+      });
+    }
+
+    // Smooth Infinite Scrolling
+    window.addEventListener('scroll', () => {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+        const isSpecialTab = hubTitle.textContent.includes('Favorites') || hubTitle.textContent.includes('Recently Played');
+        if (!isLoadingMore && !isSpecialTab && currentPlaylist.length >= 25) {
+          loadMoreSongs();
+        }
+      }
+    });
 
     // Render Songs with Smooth Hover, Unique Artwork & Equalizer Animation
     function renderSongList(songs) {
@@ -2852,6 +2961,11 @@
 
       // Track covers in the playlist to ensure no two tracks repeat the same compilation album cover
       const seenCovers = new Set();
+
+      if (!hubTitle.textContent.includes('Favorites') && !hubTitle.textContent.includes('Recently Played')) {
+        const parts = hubSubtitle.textContent.split(' • ');
+        hubSubtitle.textContent = `${parts[0]} • ${songs.length} Tracks • 320kbps Pure HD`;
+      }
 
       songs.forEach((song, idx) => {
         const isFav = favorites.some(f => f.id === song.id);
@@ -3197,7 +3311,8 @@
         hubTitle.textContent = '🔍 Results for: ' + val;
         hubSubtitle.textContent = 'Showing matching tracks from cloud library';
         document.querySelectorAll('.nav-item').forEach(c => c.classList.remove('active'));
-        fetchSongs(val);
+        currentPage = 1;
+        fetchSongs(val, 1, false);
       }, 400);
     });
 
