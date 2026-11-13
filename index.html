@@ -797,6 +797,12 @@
       background: rgba(255, 255, 255, 0.15);
       transform: scale(1.25);
     }
+    .av-opt.selected {
+      background: rgba(139, 92, 246, 0.35);
+      outline: 2px solid var(--violet);
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+      transform: scale(1.18);
+    }
     .user-stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -1285,6 +1291,87 @@
     .fav-btn.active, .fav-btn:hover {
       color: var(--rose);
       transform: scale(1.15);
+    }
+
+    /* Custom Playlists in Sidebar & Cards */
+    .btn-create-playlist {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c084fc;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.2s;
+    }
+    .btn-create-playlist:hover {
+      background: var(--accent-grad);
+      color: #fff;
+      border-color: transparent;
+      transform: translateY(-1px);
+    }
+    .add-pl-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: all 0.2s;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .add-pl-btn:hover {
+      color: var(--violet);
+      background: rgba(139, 92, 246, 0.15);
+      transform: scale(1.15);
+    }
+    .playlist-option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.9rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 0.45rem;
+    }
+    .playlist-option-row:hover {
+      background: rgba(139, 92, 246, 0.12);
+      border-color: rgba(139, 92, 246, 0.35);
+    }
+    .playlist-option-row.in-playlist {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .pl-opt-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .pl-opt-icon {
+      font-size: 1.25rem;
+    }
+    .pl-opt-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+    .pl-opt-count {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+    .pl-opt-status {
+      font-size: 0.85rem;
+      color: #10b981;
     }
 
     /* Favorites Empty State */
@@ -1923,6 +2010,17 @@
           </div>
         </div>
 
+        <!-- Custom User Playlists -->
+        <div class="nav-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+          <span>My Playlists</span>
+          <button class="btn-create-playlist" onclick="openCreatePlaylistModal()" title="Create New Playlist">
+            <i class="fa-solid fa-plus"></i> New
+          </button>
+        </div>
+        <div class="nav-group" id="customPlaylistsNav">
+          <!-- Rendered dynamically -->
+        </div>
+
         <!-- Devotional & Spiritual -->
         <div class="nav-section-title">Devotional & Spiritual</div>
         <div class="nav-group">
@@ -2057,6 +2155,10 @@
             <i class="fa-solid fa-play"></i>
             <span>Play All</span>
           </button>
+          <button class="btn-del-pl-header" id="delPlaylistHeaderBtn" onclick="deleteActivePlaylist()" style="display:none;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;padding:0.48rem 0.9rem;border-radius:20px;font-weight:700;font-size:0.82rem;cursor:pointer;" title="Delete this Playlist">
+            <i class="fa-solid fa-trash-can"></i>
+            <span>Delete Playlist</span>
+          </button>
           <button class="btn-install-apk" id="installApkBtn" onclick="triggerAppInstall()" title="Install Android App / APK">
             <i class="fa-brands fa-android"></i>
             <span>Install APK</span>
@@ -2142,6 +2244,9 @@
         </div>
         <button class="fav-btn" id="playerFavBtn" onclick="toggleFavoriteCurrent()" title="Favorite">
           <i class="fa-regular fa-heart"></i>
+        </button>
+        <button class="add-pl-btn" id="playerAddPlBtn" onclick="openAddToPlaylistCurrent()" title="Add to Playlist">
+          <i class="fa-solid fa-list-ul"></i>
         </button>
       </div>
 
@@ -2261,6 +2366,106 @@
     </div>
   </div>
 
+  <!-- Create Playlist Modal -->
+  <div class="modal-backdrop" id="createPlaylistModalBackdrop" onclick="closeCreatePlaylistModal(event)">
+    <div class="user-modal-card" style="max-width: 440px;" onclick="event.stopPropagation()">
+      <div class="user-modal-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="user-modal-avatar" style="width:52px;height:52px;font-size:1.6rem;" id="newPlIconPreview">🎵</div>
+          <div>
+            <h3 style="font-size:1.2rem;font-weight:700;color:#fff;margin:0;">Create New Playlist</h3>
+            <p style="font-size:0.8rem;color:var(--text-secondary);margin:2px 0 0;">Custom mix & favorite tracks</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeCreatePlaylistModal()">&times;</button>
+      </div>
+
+      <!-- Icon Picker -->
+      <div class="avatar-picker-bar" style="margin-top:0.8rem;">
+        <span class="picker-label">Choose Playlist Icon:</span>
+        <div class="avatar-options" id="playlistIconPicker">
+          <span class="av-opt selected" onclick="selectPlaylistIcon('🎵', this)">🎵</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('🔥', this)">🔥</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('⚡', this)">⚡</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('🚜', this)">🚜</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('ੴ', this)">ੴ</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('🎧', this)">🎧</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('❤️', this)">❤️</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('🌙', this)">🌙</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('💃', this)">💃</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('🚗', this)">🚗</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('🧘', this)">🧘</span>
+          <span class="av-opt" onclick="selectPlaylistIcon('☕', this)">☕</span>
+        </div>
+      </div>
+
+      <!-- Playlist Name Input -->
+      <div style="margin: 1.2rem 0;">
+        <label style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:6px;">Playlist Name:</label>
+        <input 
+          type="text" 
+          id="newPlaylistNameInput" 
+          class="user-name-input" 
+          style="width: 100%; max-width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border-radius: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);" 
+          placeholder="e.g. Punjabi Gym Bangers, Morning Simran..."
+          onkeydown="if(event.key==='Enter') submitCreatePlaylist()"
+        />
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button type="button" onclick="closeCreatePlaylistModal()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#cbd5e1;padding:0.65rem 1.2rem;border-radius:12px;cursor:pointer;font-weight:600;">Cancel</button>
+        <button type="button" onclick="submitCreatePlaylist()" style="background:var(--accent-grad);border:none;color:#fff;padding:0.65rem 1.5rem;border-radius:12px;cursor:pointer;font-weight:700;box-shadow:0 4px 15px var(--accent-glow);"><i class="fa-solid fa-plus"></i> Create Playlist</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add to Playlist Modal -->
+  <div class="modal-backdrop" id="addToPlaylistModalBackdrop" onclick="closeAddToPlaylistModal(event)">
+    <div class="user-modal-card" style="max-width: 460px;" onclick="event.stopPropagation()">
+      <div class="user-modal-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:42px;height:42px;border-radius:12px;background:rgba(139,92,246,0.2);display:flex;align-items:center;justify-content:center;color:#a855f7;font-size:1.15rem;box-shadow:0 0 15px rgba(139,92,246,0.3);">
+            <i class="fa-solid fa-list-ul"></i>
+          </div>
+          <div>
+            <h3 style="font-size:1.15rem;font-weight:700;color:#fff;margin:0;">Add to Playlist</h3>
+            <p style="font-size:0.78rem;color:var(--text-secondary);margin:2px 0 0;">Choose playlist for this song</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeAddToPlaylistModal()">&times;</button>
+      </div>
+
+      <!-- Preview of Target Song -->
+      <div id="addToPlSongPreview" style="display:flex;align-items:center;gap:12px;padding:0.75rem 0.9rem;background:rgba(255,255,255,0.04);border-radius:12px;margin:0.8rem 0 1.1rem;border:1px solid rgba(255,255,255,0.08);">
+        <img id="addToPlSongThumb" src="" style="width:48px;height:48px;border-radius:8px;object-fit:cover;" alt="Thumbnail" />
+        <div style="flex:1;min-width:0;">
+          <div id="addToPlSongTitle" style="font-size:0.92rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Song Title</div>
+          <div id="addToPlSongArtist" style="font-size:0.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Artist</div>
+        </div>
+      </div>
+
+      <!-- Existing Playlists List -->
+      <div style="font-size:0.78rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:0.55rem;">Your Playlists:</div>
+      <div id="addToPlaylistItemsList" style="max-height:220px;overflow-y:auto;margin-bottom:1rem;padding-right:4px;">
+        <!-- Dynamically rendered -->
+      </div>
+
+      <!-- Quick Create Playlist inline -->
+      <div style="display:flex;gap:8px;border-top:1px solid rgba(255,255,255,0.1);padding-top:1rem;">
+        <input 
+          type="text" 
+          id="quickNewPlInput" 
+          placeholder="New playlist name..." 
+          style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.6rem 0.9rem;border-radius:10px;font-size:0.85rem;outline:none;"
+          onkeydown="if(event.key==='Enter') quickCreateAndAddSong()"
+        />
+        <button type="button" onclick="quickCreateAndAddSong()" style="background:var(--accent-grad);border:none;color:#fff;padding:0.6rem 1rem;border-radius:10px;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap;box-shadow:0 3px 12px var(--accent-glow);">
+          <i class="fa-solid fa-plus"></i> Create & Add
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ==========================================
     // TEJIMUSIC USER BASE & MULTI-USER SYSTEM
@@ -2289,7 +2494,11 @@
       if (!usersData[activeUserId]) {
         activeUserId = Object.keys(usersData)[0] || 'teji_singh';
       }
-      return usersData[activeUserId];
+      const u = usersData[activeUserId];
+      if (!u.customPlaylists) {
+        u.customPlaylists = [];
+      }
+      return u;
     }
 
     function saveUsersData() {
@@ -2321,6 +2530,7 @@
       favorites = u.favorites || [];
       updateFavCount();
       renderUserProfilesList();
+      renderCustomPlaylistsNav();
     }
 
     function renderUserProfilesList() {
@@ -2391,6 +2601,7 @@
         tier: 'VIP Member',
         favorites: [],
         history: [],
+        customPlaylists: [],
         stats: { songsPlayed: 0, joinedDate: new Date().toISOString() }
       };
 
@@ -2459,6 +2670,316 @@
       if (!u.history) u.history = [];
       u.history = [song, ...u.history.filter(h => h.id !== song.id)].slice(0, 50);
       saveUsersData();
+    }
+
+    // ==========================================
+    // CUSTOM PLAYLISTS SYSTEM
+    // ==========================================
+    let activeCustomPlaylistId = null;
+    let selectedPlaylistIcon = '🎵';
+    let targetSongForPlaylist = null;
+
+    function renderCustomPlaylistsNav() {
+      const container = document.getElementById('customPlaylistsNav');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const u = getActiveUser();
+      const playlists = u.customPlaylists || [];
+
+      if (playlists.length === 0) {
+        container.innerHTML = `
+          <div style="font-size:0.75rem;color:var(--text-muted);padding:0.45rem 0.85rem;font-style:italic;">
+            No playlists yet. Tap <b style="color:var(--violet);">+ New</b> above to create!
+          </div>
+        `;
+        return;
+      }
+
+      playlists.forEach(pl => {
+        const isActive = activeCustomPlaylistId === pl.id;
+        const count = (pl.songs || []).length;
+        const div = document.createElement('div');
+        div.className = `nav-item ${isActive ? 'active' : ''}`;
+        div.id = `nav-pl-${pl.id}`;
+        div.style.display = 'flex';
+        div.style.justifyContent = 'space-between';
+        div.style.alignItems = 'center';
+        div.onclick = () => openPlaylistView(pl.id, div);
+
+        div.innerHTML = `
+          <div style="display:flex;align-items:center;gap:10px;overflow:hidden;flex:1;">
+            <span style="font-size:1.1rem;flex-shrink:0;">${pl.icon || '🎵'}</span>
+            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">${pl.name}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+            <span class="badge-count" style="font-size:0.7rem;padding:2px 7px;">${count}</span>
+            <button onclick="event.stopPropagation(); deleteCustomPlaylist('${pl.id}')" title="Delete Playlist" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:3px 5px;font-size:0.8rem;transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function openCreatePlaylistModal() {
+      selectedPlaylistIcon = '🎵';
+      const iconPrev = document.getElementById('newPlIconPreview');
+      if (iconPrev) iconPrev.textContent = '🎵';
+      document.querySelectorAll('#playlistIconPicker .av-opt').forEach((opt, idx) => {
+        opt.classList.toggle('selected', idx === 0);
+      });
+      const input = document.getElementById('newPlaylistNameInput');
+      if (input) {
+        input.value = '';
+        setTimeout(() => input.focus(), 150);
+      }
+      document.getElementById('createPlaylistModalBackdrop').classList.add('open');
+    }
+
+    function closeCreatePlaylistModal(e) {
+      if (e && e.target && e.target.id !== 'createPlaylistModalBackdrop' && !e.target.classList.contains('modal-close-btn')) {
+        return;
+      }
+      document.getElementById('createPlaylistModalBackdrop').classList.remove('open');
+    }
+
+    function selectPlaylistIcon(icon, elem) {
+      selectedPlaylistIcon = icon;
+      const preview = document.getElementById('newPlIconPreview');
+      if (preview) preview.textContent = icon;
+      document.querySelectorAll('#playlistIconPicker .av-opt').forEach(opt => opt.classList.remove('selected'));
+      if (elem) elem.classList.add('selected');
+    }
+
+    function submitCreatePlaylist() {
+      const input = document.getElementById('newPlaylistNameInput');
+      const name = (input.value || '').trim();
+      if (!name) {
+        showToast('Please enter a playlist name!', 2000);
+        return;
+      }
+
+      const u = getActiveUser();
+      const newId = 'pl_' + Date.now();
+      const newPl = {
+        id: newId,
+        name: name,
+        icon: selectedPlaylistIcon || '🎵',
+        createdAt: new Date().toISOString(),
+        songs: []
+      };
+
+      u.customPlaylists.push(newPl);
+      saveUsersData();
+      renderCustomPlaylistsNav();
+      document.getElementById('createPlaylistModalBackdrop').classList.remove('open');
+      showToast(`Playlist "${name}" created! 🎉`, 2500);
+
+      // Open newly created playlist
+      openPlaylistView(newId);
+    }
+
+    function openPlaylistView(playlistId, elem) {
+      const u = getActiveUser();
+      const pl = (u.customPlaylists || []).find(p => p.id === playlistId);
+      if (!pl) return;
+
+      activeCustomPlaylistId = playlistId;
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const activeNav = elem || document.getElementById(`nav-pl-${playlistId}`);
+      if (activeNav) activeNav.classList.add('active');
+
+      const yfb = document.getElementById('yearFilterBar');
+      if (yfb) yfb.style.display = 'none';
+      const afb = document.getElementById('angFilterBar');
+      if (afb) afb.style.display = 'none';
+      const lmc = document.getElementById('loadMoreContainer');
+      if (lmc) lmc.style.display = 'none';
+
+      document.getElementById('sidebar').classList.remove('open');
+      const bd = document.getElementById('sidebarBackdrop');
+      if (bd) bd.classList.remove('open');
+
+      hubTitle.textContent = `${pl.icon || '🎵'} ${pl.name}`;
+      hubSubtitle.textContent = `Custom Playlist by ${u.name} • ${(pl.songs || []).length} songs • 320kbps HD Audio`;
+
+      const delBtn = document.getElementById('delPlaylistHeaderBtn');
+      if (delBtn) delBtn.style.display = 'inline-flex';
+
+      currentPlaylist = pl.songs || [];
+      renderSongList(currentPlaylist);
+    }
+
+    function openAddToPlaylistModal(songIdx) {
+      if (songIdx < 0 || songIdx >= currentPlaylist.length) return;
+      targetSongForPlaylist = currentPlaylist[songIdx];
+
+      const thumb = document.getElementById('addToPlSongThumb');
+      const title = document.getElementById('addToPlSongTitle');
+      const artist = document.getElementById('addToPlSongArtist');
+
+      if (thumb) thumb.src = targetSongForPlaylist.displayThumb || (targetSongForPlaylist.image && targetSongForPlaylist.image.length > 10 ? targetSongForPlaylist.image : getFallbackCover(targetSongForPlaylist.name));
+      if (title) title.textContent = targetSongForPlaylist.name;
+      if (artist) artist.textContent = targetSongForPlaylist.artist;
+
+      renderAddToPlaylistItems();
+      document.getElementById('addToPlaylistModalBackdrop').classList.add('open');
+    }
+
+    function openAddToPlaylistCurrent() {
+      if (currentIndex >= 0 && currentPlaylist[currentIndex]) {
+        openAddToPlaylistModal(currentIndex);
+      } else {
+        showToast('Please select a song first!');
+      }
+    }
+
+    function closeAddToPlaylistModal(e) {
+      if (e && e.target && e.target.id !== 'addToPlaylistModalBackdrop' && !e.target.classList.contains('modal-close-btn')) {
+        return;
+      }
+      document.getElementById('addToPlaylistModalBackdrop').classList.remove('open');
+    }
+
+    function renderAddToPlaylistItems() {
+      const container = document.getElementById('addToPlaylistItemsList');
+      if (!container || !targetSongForPlaylist) return;
+      container.innerHTML = '';
+
+      const u = getActiveUser();
+      const playlists = u.customPlaylists || [];
+
+      if (playlists.length === 0) {
+        container.innerHTML = `
+          <div style="font-size:0.85rem;color:var(--text-secondary);padding:1rem;text-align:center;background:rgba(255,255,255,0.03);border-radius:12px;">
+            No playlists yet. Type a name below to create your first playlist!
+          </div>
+        `;
+        return;
+      }
+
+      playlists.forEach(pl => {
+        const inPlaylist = (pl.songs || []).some(s => s.id === targetSongForPlaylist.id || s.name.toLowerCase() === targetSongForPlaylist.name.toLowerCase());
+        const row = document.createElement('div');
+        row.className = `playlist-option-row ${inPlaylist ? 'in-playlist' : ''}`;
+        row.onclick = () => toggleSongInPlaylist(pl.id);
+
+        row.innerHTML = `
+          <div class="pl-opt-left">
+            <span class="pl-opt-icon">${pl.icon || '🎵'}</span>
+            <div>
+              <div class="pl-opt-name">${pl.name}</div>
+              <div class="pl-opt-count">${(pl.songs || []).length} songs</div>
+            </div>
+          </div>
+          <div class="pl-opt-status">
+            ${inPlaylist 
+              ? '<span style="color:#10b981;font-weight:700;font-size:0.85rem;"><i class="fa-solid fa-check"></i> Added</span>' 
+              : '<span style="color:var(--violet);font-weight:700;font-size:0.85rem;"><i class="fa-solid fa-plus"></i> Add</span>'}
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function toggleSongInPlaylist(playlistId) {
+      if (!targetSongForPlaylist) return;
+      const u = getActiveUser();
+      const pl = (u.customPlaylists || []).find(p => p.id === playlistId);
+      if (!pl) return;
+
+      if (!pl.songs) pl.songs = [];
+      const existingIdx = pl.songs.findIndex(s => s.id === targetSongForPlaylist.id || s.name.toLowerCase() === targetSongForPlaylist.name.toLowerCase());
+
+      if (existingIdx > -1) {
+        pl.songs.splice(existingIdx, 1);
+        showToast(`Removed from "${pl.name}"`, 2000);
+      } else {
+        pl.songs.push(targetSongForPlaylist);
+        showToast(`Added to "${pl.name}"! 🎵`, 2000);
+      }
+
+      saveUsersData();
+      renderAddToPlaylistItems();
+      renderCustomPlaylistsNav();
+
+      if (activeCustomPlaylistId === playlistId) {
+        currentPlaylist = pl.songs;
+        renderSongList(currentPlaylist);
+        hubSubtitle.textContent = `Custom Playlist by ${u.name} • ${pl.songs.length} songs • 320kbps HD Audio`;
+      }
+    }
+
+    function quickCreateAndAddSong() {
+      const input = document.getElementById('quickNewPlInput');
+      const name = (input.value || '').trim();
+      if (!name) {
+        showToast('Please enter a playlist name!', 2000);
+        return;
+      }
+      if (!targetSongForPlaylist) return;
+
+      const u = getActiveUser();
+      const newId = 'pl_' + Date.now();
+      const newPl = {
+        id: newId,
+        name: name,
+        icon: '🎵',
+        createdAt: new Date().toISOString(),
+        songs: [targetSongForPlaylist]
+      };
+
+      u.customPlaylists.push(newPl);
+      saveUsersData();
+      renderCustomPlaylistsNav();
+      renderAddToPlaylistItems();
+      input.value = '';
+      showToast(`Created "${name}" & added song! 🎉`, 2500);
+    }
+
+    function removeSongFromActivePlaylist(songIdx) {
+      if (!activeCustomPlaylistId) return;
+      const u = getActiveUser();
+      const pl = (u.customPlaylists || []).find(p => p.id === activeCustomPlaylistId);
+      if (!pl || !pl.songs || !pl.songs[songIdx]) return;
+
+      const removed = pl.songs.splice(songIdx, 1)[0];
+      saveUsersData();
+      renderCustomPlaylistsNav();
+      currentPlaylist = pl.songs;
+      renderSongList(currentPlaylist);
+      hubSubtitle.textContent = `Custom Playlist by ${u.name} • ${pl.songs.length} songs • 320kbps HD Audio`;
+      showToast(`Removed "${removed.name}" from playlist.`, 2000);
+    }
+
+    function deleteCustomPlaylist(playlistId) {
+      const u = getActiveUser();
+      const pl = (u.customPlaylists || []).find(p => p.id === playlistId);
+      if (!pl) return;
+
+      if (!confirm(`Are you sure you want to delete playlist "${pl.name}"?`)) {
+        return;
+      }
+
+      u.customPlaylists = u.customPlaylists.filter(p => p.id !== playlistId);
+      saveUsersData();
+      renderCustomPlaylistsNav();
+
+      if (activeCustomPlaylistId === playlistId) {
+        activeCustomPlaylistId = null;
+        const delBtn = document.getElementById('delPlaylistHeaderBtn');
+        if (delBtn) delBtn.style.display = 'none';
+        navSelect('home', '🏠 Home Trending Hits', document.getElementById('nav-home'));
+      }
+      showToast(`Playlist "${pl.name}" deleted.`, 2000);
+    }
+
+    function deleteActivePlaylist() {
+      if (activeCustomPlaylistId) {
+        deleteCustomPlaylist(activeCustomPlaylistId);
+      }
     }
 
     let currentPlaylist = [];
@@ -2575,6 +3096,10 @@
 
     // Sidebar Navigation Click
     function navSelect(key, displayName, elem) {
+      activeCustomPlaylistId = null;
+      const delBtn = document.getElementById('delPlaylistHeaderBtn');
+      if (delBtn) delBtn.style.display = 'none';
+
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       if (elem) elem.classList.add('active');
 
@@ -2691,6 +3216,10 @@
 
     // Switch to Favorites View with Clean Empty State
     function switchTab(tab, elem) {
+      activeCustomPlaylistId = null;
+      const delBtn = document.getElementById('delPlaylistHeaderBtn');
+      if (delBtn) delBtn.style.display = 'none';
+
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       if (elem) elem.classList.add('active');
 
@@ -2997,9 +3526,20 @@
     function renderSongList(songs) {
       songList.innerHTML = '';
       
-      // Clean Empty State for Favorites
+      // Clean Empty State for Favorites & Custom Playlists
       if (!songs || songs.length === 0) {
-        if (hubTitle.textContent.includes('Favorites')) {
+        if (activeCustomPlaylistId) {
+          songList.innerHTML = `
+            <div class="empty-state-card">
+              <div class="empty-icon-wrap" style="color:var(--violet);background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.3);"><i class="fa-solid fa-list-ul"></i></div>
+              <h3>This Playlist is Empty</h3>
+              <p>Is playlist me abhi koi gaana nahi hai. Kisi bhi gaane ke <i class="fa-solid fa-list-ul"></i> button par click karke isme gaane add karein!</p>
+              <button class="btn-explore" onclick="navSelect('home', '🏠 Home Trending Hits', document.getElementById('nav-home'))">
+                <i class="fa-solid fa-compass"></i> Explore Trending Songs
+              </button>
+            </div>
+          `;
+        } else if (hubTitle.textContent.includes('Favorites')) {
           songList.innerHTML = `
             <div class="empty-state-card">
               <div class="empty-icon-wrap"><i class="fa-regular fa-heart"></i></div>
@@ -3025,7 +3565,7 @@
       // Track covers in the playlist to ensure no two tracks repeat the same compilation album cover
       const seenCovers = new Set();
 
-      if (!hubTitle.textContent.includes('Favorites') && !hubTitle.textContent.includes('Recently Played')) {
+      if (!hubTitle.textContent.includes('Favorites') && !hubTitle.textContent.includes('Recently Played') && !activeCustomPlaylistId) {
         const parts = hubSubtitle.textContent.split(' • ');
         hubSubtitle.textContent = `${parts[0]} • ${songs.length} Tracks • 320kbps Pure HD`;
       }
@@ -3071,9 +3611,17 @@
           ${song.ang ? `<span class="badge-sikh" style="font-size:0.75rem;padding:0.25rem 0.55rem;white-space:nowrap;"><i class="fa-solid fa-book-open"></i> ${song.ang}</span>` : ''}
           ${yearStr ? `<span class="song-year-badge">${yearStr}</span>` : ''}
           ${durStr ? `<span class="song-duration-badge">${durStr}</span>` : ''}
+          <button class="add-pl-btn" onclick="event.stopPropagation(); openAddToPlaylistModal(${idx})" title="Add to Playlist">
+            <i class="fa-solid fa-list-ul"></i>
+          </button>
           <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${idx})">
             <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
           </button>
+          ${activeCustomPlaylistId ? `
+            <button class="add-pl-btn" style="color:#ef4444;" onclick="event.stopPropagation(); removeSongFromActivePlaylist(${idx})" title="Remove from this playlist">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          ` : ''}
         `;
         songList.appendChild(card);
       });
@@ -3370,6 +3918,9 @@
       const val = e.target.value.trim();
       if (!val) return;
       searchTimeout = setTimeout(() => {
+        activeCustomPlaylistId = null;
+        const delBtn = document.getElementById('delPlaylistHeaderBtn');
+        if (delBtn) delBtn.style.display = 'none';
         const yfb = document.getElementById('yearFilterBar');
         if (yfb) yfb.style.display = 'none';
         hubTitle.textContent = '🔍 Results for: ' + val;
