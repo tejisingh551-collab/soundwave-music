@@ -1374,6 +1374,65 @@
       color: #10b981;
     }
 
+    /* Genre Playlists Chips & Filter Bar */
+    .genre-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e2e8f0;
+      padding: 0.35rem 0.72rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: inherit;
+    }
+    .genre-chip:hover {
+      background: rgba(139, 92, 246, 0.18);
+      border-color: rgba(139, 92, 246, 0.4);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .genre-chip.active {
+      background: var(--accent-grad);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 2px 10px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+    .pl-genre-filter-bar {
+      display: flex;
+      gap: 5px;
+      overflow-x: auto;
+      padding: 2px 0 6px 0;
+      margin-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .pl-genre-filter-bar::-webkit-scrollbar {
+      display: none;
+    }
+    .pl-filter-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+      padding: 0.22rem 0.55rem;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .pl-filter-chip:hover, .pl-filter-chip.active {
+      background: rgba(139, 92, 246, 0.22);
+      border-color: rgba(139, 92, 246, 0.45);
+      color: #fff;
+    }
+
     /* Favorites Empty State */
     .empty-state-card {
       background: var(--card-bg);
@@ -2380,6 +2439,25 @@
         <button class="modal-close-btn" onclick="closeCreatePlaylistModal()">&times;</button>
       </div>
 
+      <!-- Genre Category Picker -->
+      <div class="avatar-picker-bar" style="margin-top:0.8rem;">
+        <span class="picker-label"><i class="fa-solid fa-layer-group"></i> Select Playlist Genre:</span>
+        <div class="genre-chips-wrap" id="playlistGenrePicker" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;">
+          <button type="button" class="genre-chip active" onclick="selectPlaylistGenre('punjabi', this)">🌾 Punjabi</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('bhangra', this)">🥁 Bhangra</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('haryanvi', this)">🚜 Haryanvi</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('bhojpuri', this)">🌶️ Bhojpuri</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('gurbani', this)">ੴ Gurbani</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('hindi', this)">🇮🇳 Hindi</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('romantic', this)">❤️ Romantic</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('party', this)">⚡ Party</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('lofi', this)">☕ Lo-Fi</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('sleeping', this)">🌙 Sleeping</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('english', this)">🌍 English</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('custom', this)">✨ Custom</button>
+        </div>
+      </div>
+
       <!-- Icon Picker -->
       <div class="avatar-picker-bar" style="margin-top:0.8rem;">
         <span class="picker-label">Choose Playlist Icon:</span>
@@ -2410,6 +2488,14 @@
           placeholder="e.g. Punjabi Gym Bangers, Morning Simran..."
           onkeydown="if(event.key==='Enter') submitCreatePlaylist()"
         />
+      </div>
+
+      <!-- Auto-populate option -->
+      <div style="margin: -0.4rem 0 1.2rem; display:flex; align-items:center; gap:9px; background:rgba(255,255,255,0.04); padding:0.6rem 0.85rem; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
+        <input type="checkbox" id="autoPopulateGenreSongs" checked style="accent-color: var(--violet); width:17px; height:17px; cursor:pointer;" />
+        <label for="autoPopulateGenreSongs" id="autoPopulateLabel" style="font-size:0.83rem; color:#e2e8f0; cursor:pointer; font-weight:500;">
+          Auto-fill with Top 15 songs of this genre right away!
+        </label>
       </div>
 
       <div style="display:flex;gap:10px;justify-content:flex-end;">
@@ -2451,12 +2537,26 @@
       </div>
 
       <!-- Quick Create Playlist inline -->
-      <div style="display:flex;gap:8px;border-top:1px solid rgba(255,255,255,0.1);padding-top:1rem;">
+      <div style="display:flex;gap:8px;border-top:1px solid rgba(255,255,255,0.1);padding-top:1rem;flex-wrap:wrap;">
+        <select id="quickPlGenreSelect" style="background:#1e293b;border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.6rem;border-radius:10px;font-size:0.82rem;outline:none;">
+          <option value="punjabi">🌾 Punjabi</option>
+          <option value="bhangra">🥁 Bhangra</option>
+          <option value="haryanvi">🚜 Haryanvi</option>
+          <option value="bhojpuri">🌶️ Bhojpuri</option>
+          <option value="gurbani">ੴ Gurbani</option>
+          <option value="hindi">🇮🇳 Hindi</option>
+          <option value="romantic">❤️ Romantic</option>
+          <option value="party">⚡ Party</option>
+          <option value="lofi">☕ Lo-Fi</option>
+          <option value="sleeping">🌙 Sleeping</option>
+          <option value="english">🌍 English</option>
+          <option value="custom">✨ Custom</option>
+        </select>
         <input 
           type="text" 
           id="quickNewPlInput" 
           placeholder="New playlist name..." 
-          style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.6rem 0.9rem;border-radius:10px;font-size:0.85rem;outline:none;"
+          style="flex:1;min-width:140px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:0.6rem 0.9rem;border-radius:10px;font-size:0.85rem;outline:none;"
           onkeydown="if(event.key==='Enter') quickCreateAndAddSong()"
         />
         <button type="button" onclick="quickCreateAndAddSong()" style="background:var(--accent-grad);border:none;color:#fff;padding:0.6rem 1rem;border-radius:10px;font-weight:700;font-size:0.82rem;cursor:pointer;white-space:nowrap;box-shadow:0 3px 12px var(--accent-glow);">
@@ -2673,11 +2773,46 @@
     }
 
     // ==========================================
-    // CUSTOM PLAYLISTS SYSTEM
+    // CUSTOM GENRE PLAYLISTS SYSTEM
     // ==========================================
     let activeCustomPlaylistId = null;
-    let selectedPlaylistIcon = '🎵';
+    let selectedPlaylistIcon = '🌾';
+    let selectedPlaylistGenre = 'punjabi';
+    let sidebarPlaylistFilter = 'all';
     let targetSongForPlaylist = null;
+
+    const GENRE_TEMPLATES = {
+      'punjabi': { title: '🌾 Punjabi Hits Mix', icon: '🌾', query: 'punjabi' },
+      'bhangra': { title: '🥁 Bhangra Beats', icon: '🥁', query: 'bhangra' },
+      'haryanvi': { title: '🚜 Desi Haryanvi Dhamaka', icon: '🚜', query: 'haryanvi' },
+      'bhojpuri': { title: '🌶️ Bhojpuri Superhits', icon: '🌶️', query: 'bhojpuri' },
+      'gurbani': { title: 'ੴ Amritvela Shabad Gurbani', icon: 'ੴ', query: 'gurbani' },
+      'hindi': { title: '🇮🇳 Bollywood Top 50', icon: '🎵', query: 'hindi' },
+      'romantic': { title: '❤️ Romantic Melodies', icon: '❤️', query: 'romantic' },
+      'party': { title: '⚡ Party Bangers', icon: '⚡', query: 'party' },
+      'lofi': { title: '☕ Lo-Fi Midnight Chill', icon: '☕', query: 'lofi' },
+      'sleeping': { title: '🌙 Deep Sleep & Calm', icon: '🌙', query: 'sleeping' },
+      'english': { title: '🌍 English Pop Hits', icon: '🌍', query: 'english' },
+      'custom': { title: '✨ My Custom Mix', icon: '🎵', query: '' }
+    };
+
+    function selectPlaylistGenre(genreKey, elem) {
+      selectedPlaylistGenre = genreKey;
+      document.querySelectorAll('#playlistGenrePicker .genre-chip').forEach(c => c.classList.remove('active'));
+      if (elem) elem.classList.add('active');
+
+      const tmpl = GENRE_TEMPLATES[genreKey] || GENRE_TEMPLATES['custom'];
+      const input = document.getElementById('newPlaylistNameInput');
+      if (input) {
+        input.value = tmpl.title;
+      }
+      selectPlaylistIcon(tmpl.icon);
+
+      const autoPopLabel = document.getElementById('autoPopulateLabel');
+      if (autoPopLabel) {
+        autoPopLabel.textContent = `Auto-fill with Top 15 songs of this genre right away!`;
+      }
+    }
 
     function renderCustomPlaylistsNav() {
       const container = document.getElementById('customPlaylistsNav');
@@ -2685,18 +2820,38 @@
       container.innerHTML = '';
 
       const u = getActiveUser();
-      const playlists = u.customPlaylists || [];
+      const allPlaylists = u.customPlaylists || [];
 
-      if (playlists.length === 0) {
+      if (allPlaylists.length === 0) {
         container.innerHTML = `
           <div style="font-size:0.75rem;color:var(--text-muted);padding:0.45rem 0.85rem;font-style:italic;">
-            No playlists yet. Tap <b style="color:var(--violet);">+ New</b> above to create!
+            No playlists yet. Tap <b style="color:var(--violet);">+ New</b> to make a genre playlist!
           </div>
         `;
         return;
       }
 
-      playlists.forEach(pl => {
+      // Collect unique genres present in user's playlists
+      const genresPresent = Array.from(new Set(allPlaylists.map(p => p.genre || 'custom')));
+      if (genresPresent.length > 1) {
+        const filterBar = document.createElement('div');
+        filterBar.className = 'pl-genre-filter-bar';
+        filterBar.innerHTML = `
+          <button class="pl-filter-chip ${sidebarPlaylistFilter === 'all' ? 'active' : ''}" onclick="filterSidebarPlaylists('all', this)">All (${allPlaylists.length})</button>
+          ${genresPresent.map(g => {
+            const tmpl = GENRE_TEMPLATES[g] || { icon: '🎵', title: g };
+            const genreCount = allPlaylists.filter(p => (p.genre || 'custom') === g).length;
+            return `<button class="pl-filter-chip ${sidebarPlaylistFilter === g ? 'active' : ''}" onclick="filterSidebarPlaylists('${g}', this)">${tmpl.icon} ${genreCount}</button>`;
+          }).join('')}
+        `;
+        container.appendChild(filterBar);
+      }
+
+      const filteredPlaylists = sidebarPlaylistFilter === 'all' 
+        ? allPlaylists 
+        : allPlaylists.filter(p => (p.genre || 'custom') === sidebarPlaylistFilter);
+
+      filteredPlaylists.forEach(pl => {
         const isActive = activeCustomPlaylistId === pl.id;
         const count = (pl.songs || []).length;
         const div = document.createElement('div');
@@ -2707,13 +2862,20 @@
         div.style.alignItems = 'center';
         div.onclick = () => openPlaylistView(pl.id, div);
 
+        const genreLabel = pl.genre ? (pl.genre.charAt(0).toUpperCase() + pl.genre.slice(1)) : 'Mix';
+
         div.innerHTML = `
           <div style="display:flex;align-items:center;gap:10px;overflow:hidden;flex:1;">
-            <span style="font-size:1.1rem;flex-shrink:0;">${pl.icon || '🎵'}</span>
-            <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;">${pl.name}</span>
+            <span style="font-size:1.15rem;flex-shrink:0;">${pl.icon || '🎵'}</span>
+            <div style="overflow:hidden;min-width:0;flex:1;">
+              <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;font-size:0.88rem;">${pl.name}</div>
+              <div style="font-size:0.7rem;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+                <span class="badge-pill" style="font-size:0.62rem;padding:1px 5px;background:rgba(139,92,246,0.18);border:1px solid rgba(139,92,246,0.3);color:#d8b4fe;">${genreLabel}</span>
+                <span>${count} songs</span>
+              </div>
+            </div>
           </div>
           <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-            <span class="badge-count" style="font-size:0.7rem;padding:2px 7px;">${count}</span>
             <button onclick="event.stopPropagation(); deleteCustomPlaylist('${pl.id}')" title="Delete Playlist" style="background:transparent;border:none;color:var(--text-muted);cursor:pointer;padding:3px 5px;font-size:0.8rem;transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
               <i class="fa-solid fa-trash-can"></i>
             </button>
@@ -2723,17 +2885,31 @@
       });
     }
 
-    function openCreatePlaylistModal() {
-      selectedPlaylistIcon = '🎵';
+    function filterSidebarPlaylists(genre, elem) {
+      sidebarPlaylistFilter = genre;
+      renderCustomPlaylistsNav();
+    }
+
+    function openCreatePlaylistModal(defaultGenre = 'punjabi') {
+      selectedPlaylistGenre = defaultGenre;
+      const tmpl = GENRE_TEMPLATES[defaultGenre] || GENRE_TEMPLATES['punjabi'];
+      selectedPlaylistIcon = tmpl.icon;
+
       const iconPrev = document.getElementById('newPlIconPreview');
-      if (iconPrev) iconPrev.textContent = '🎵';
-      document.querySelectorAll('#playlistIconPicker .av-opt').forEach((opt, idx) => {
-        opt.classList.toggle('selected', idx === 0);
+      if (iconPrev) iconPrev.textContent = tmpl.icon;
+
+      document.querySelectorAll('#playlistGenrePicker .genre-chip').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('onclick')?.includes(`'${defaultGenre}'`));
       });
+
+      document.querySelectorAll('#playlistIconPicker .av-opt').forEach((opt) => {
+        opt.classList.toggle('selected', opt.textContent.trim() === tmpl.icon);
+      });
+
       const input = document.getElementById('newPlaylistNameInput');
       if (input) {
-        input.value = '';
-        setTimeout(() => input.focus(), 150);
+        input.value = tmpl.title;
+        setTimeout(() => { input.focus(); input.select(); }, 150);
       }
       document.getElementById('createPlaylistModalBackdrop').classList.add('open');
     }
@@ -2749,11 +2925,12 @@
       selectedPlaylistIcon = icon;
       const preview = document.getElementById('newPlIconPreview');
       if (preview) preview.textContent = icon;
-      document.querySelectorAll('#playlistIconPicker .av-opt').forEach(opt => opt.classList.remove('selected'));
-      if (elem) elem.classList.add('selected');
+      document.querySelectorAll('#playlistIconPicker .av-opt').forEach(opt => {
+        opt.classList.toggle('selected', opt === elem || opt.textContent.trim() === icon);
+      });
     }
 
-    function submitCreatePlaylist() {
+    async function submitCreatePlaylist() {
       const input = document.getElementById('newPlaylistNameInput');
       const name = (input.value || '').trim();
       if (!name) {
@@ -2763,19 +2940,46 @@
 
       const u = getActiveUser();
       const newId = 'pl_' + Date.now();
+      const genreKey = selectedPlaylistGenre || 'punjabi';
+      const tmpl = GENRE_TEMPLATES[genreKey] || GENRE_TEMPLATES['custom'];
+
+      const autoPopulate = document.getElementById('autoPopulateGenreSongs')?.checked;
+      let initialSongs = [];
+
+      if (autoPopulate && tmpl.query) {
+        showToast(`Creating "${name}" & fetching top ${genreKey} songs... ⏳`, 3000);
+        try {
+          const res = await fetch(`/api/search?q=${encodeURIComponent(tmpl.query)}&p=1`);
+          if (res.ok) {
+            const json = await res.json();
+            if (json.results && json.results.length > 0) {
+              const seen = new Set();
+              initialSongs = json.results.filter(s => {
+                if (!s || !s.name || seen.has(s.name.toLowerCase())) return false;
+                seen.add(s.name.toLowerCase());
+                return true;
+              }).slice(0, 15);
+            }
+          }
+        } catch (e) {
+          console.warn('Auto-fill fetch note:', e);
+        }
+      }
+
       const newPl = {
         id: newId,
         name: name,
-        icon: selectedPlaylistIcon || '🎵',
+        icon: selectedPlaylistIcon || tmpl.icon || '🎵',
+        genre: genreKey,
         createdAt: new Date().toISOString(),
-        songs: []
+        songs: initialSongs
       };
 
       u.customPlaylists.push(newPl);
       saveUsersData();
       renderCustomPlaylistsNav();
       document.getElementById('createPlaylistModalBackdrop').classList.remove('open');
-      showToast(`Playlist "${name}" created! 🎉`, 2500);
+      showToast(`Playlist "${name}" created with ${initialSongs.length} songs! 🎉`, 3000);
 
       // Open newly created playlist
       openPlaylistView(newId);
@@ -2802,8 +3006,9 @@
       const bd = document.getElementById('sidebarBackdrop');
       if (bd) bd.classList.remove('open');
 
+      const genreLabel = pl.genre ? (pl.genre.charAt(0).toUpperCase() + pl.genre.slice(1)) : 'Mix';
       hubTitle.textContent = `${pl.icon || '🎵'} ${pl.name}`;
-      hubSubtitle.textContent = `Custom Playlist by ${u.name} • ${(pl.songs || []).length} songs • 320kbps HD Audio`;
+      hubSubtitle.textContent = `Genre: ${genreLabel} • Playlist by ${u.name} • ${(pl.songs || []).length} songs • 320kbps HD Audio`;
 
       const delBtn = document.getElementById('delPlaylistHeaderBtn');
       if (delBtn) delBtn.style.display = 'inline-flex';
@@ -2854,7 +3059,7 @@
       if (playlists.length === 0) {
         container.innerHTML = `
           <div style="font-size:0.85rem;color:var(--text-secondary);padding:1rem;text-align:center;background:rgba(255,255,255,0.03);border-radius:12px;">
-            No playlists yet. Type a name below to create your first playlist!
+            No playlists yet. Select genre & enter name below to create!
           </div>
         `;
         return;
@@ -2866,12 +3071,14 @@
         row.className = `playlist-option-row ${inPlaylist ? 'in-playlist' : ''}`;
         row.onclick = () => toggleSongInPlaylist(pl.id);
 
+        const genreLabel = pl.genre ? (pl.genre.charAt(0).toUpperCase() + pl.genre.slice(1)) : 'Mix';
+
         row.innerHTML = `
           <div class="pl-opt-left">
             <span class="pl-opt-icon">${pl.icon || '🎵'}</span>
             <div>
               <div class="pl-opt-name">${pl.name}</div>
-              <div class="pl-opt-count">${(pl.songs || []).length} songs</div>
+              <div class="pl-opt-count">${genreLabel} • ${(pl.songs || []).length} songs</div>
             </div>
           </div>
           <div class="pl-opt-status">
@@ -2908,7 +3115,8 @@
       if (activeCustomPlaylistId === playlistId) {
         currentPlaylist = pl.songs;
         renderSongList(currentPlaylist);
-        hubSubtitle.textContent = `Custom Playlist by ${u.name} • ${pl.songs.length} songs • 320kbps HD Audio`;
+        const genreLabel = pl.genre ? (pl.genre.charAt(0).toUpperCase() + pl.genre.slice(1)) : 'Mix';
+        hubSubtitle.textContent = `Genre: ${genreLabel} • Playlist by ${u.name} • ${pl.songs.length} songs • 320kbps HD Audio`;
       }
     }
 
@@ -2921,12 +3129,17 @@
       }
       if (!targetSongForPlaylist) return;
 
+      const genreSelect = document.getElementById('quickPlGenreSelect');
+      const genreKey = genreSelect ? genreSelect.value : 'custom';
+      const tmpl = GENRE_TEMPLATES[genreKey] || GENRE_TEMPLATES['custom'];
+
       const u = getActiveUser();
       const newId = 'pl_' + Date.now();
       const newPl = {
         id: newId,
         name: name,
-        icon: '🎵',
+        icon: tmpl.icon || '🎵',
+        genre: genreKey,
         createdAt: new Date().toISOString(),
         songs: [targetSongForPlaylist]
       };
@@ -2950,7 +3163,8 @@
       renderCustomPlaylistsNav();
       currentPlaylist = pl.songs;
       renderSongList(currentPlaylist);
-      hubSubtitle.textContent = `Custom Playlist by ${u.name} • ${pl.songs.length} songs • 320kbps HD Audio`;
+      const genreLabel = pl.genre ? (pl.genre.charAt(0).toUpperCase() + pl.genre.slice(1)) : 'Mix';
+      hubSubtitle.textContent = `Genre: ${genreLabel} • Playlist by ${u.name} • ${pl.songs.length} songs • 320kbps HD Audio`;
       showToast(`Removed "${removed.name}" from playlist.`, 2000);
     }
 
