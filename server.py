@@ -25,7 +25,20 @@ TRENDING_PRESETS = {
     "lofi": "Hindi Lofi",
     "party": "Party Hindi",
     "haryanvi": "Top Haryanvi",
-    "gurbani": "Shabad Gurbani Kirtan"
+    "gurbani": "Shabad Gurbani Kirtan",
+    "dhadrianwale": "Bhai Ranjit Singh Ji Dhadrianwale",
+    "sleeping": "Deep Sleep Relaxing Music Lo-Fi Chill",
+    "bhangra": "Top Punjabi Bhangra Hits",
+    "bhangra_2025": "Latest Punjabi Bhangra Songs 2025",
+    "bhangra_2024": "Punjabi Bhangra Songs 2024",
+    "bhangra_2023": "Punjabi Bhangra Songs 2023",
+    "bhangra_2022": "Punjabi Bhangra Songs 2022",
+    "bhangra_2021": "Punjabi Bhangra Songs 2021",
+    "bhangra_2020": "Punjabi Bhangra Songs 2020",
+    "bhangra_2015": "Punjabi Bhangra Hits 2015",
+    "bhangra_2010": "Punjabi Bhangra Hits 2010",
+    "bhangra_2000": "Punjabi Bhangra 2000",
+    "bhangra_1990": "Punjabi Bhangra 1990"
 }
 
 def decrypt_url(enc_url):
@@ -77,9 +90,17 @@ def search_jiosaavn(query, count=45):
                 if any(bad in title_lower for bad in bad_keywords):
                     continue
                 
-                # Duration filter: Skip short clips (< 45s) and tracks longer than 10 mins (or 40 mins for Gurbani)
+                # Duration filter: Allow full-length diwans (up to 3 hrs), sleep music (up to 1 hr), gurbani (up to 40 mins)
                 duration = int(r.get('duration', 0)) if r.get('duration') else 0
-                max_dur = 2400 if any(k in q_lower for k in ['gurbani', 'shabad', 'kirtan', 'simran', 'nitnem', 'waheguru']) else 600
+                if any(k in q_lower for k in ['dhadrianwale', 'dhadrianwala', 'diwan', 'katha']):
+                    max_dur = 10800
+                elif any(k in q_lower for k in ['gurbani', 'shabad', 'kirtan', 'simran', 'nitnem', 'waheguru']):
+                    max_dur = 2400
+                elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing']):
+                    max_dur = 3600
+                else:
+                    max_dur = 600
+
                 if duration < 45 or duration > max_dur:
                     continue
                 
@@ -114,6 +135,7 @@ def search_jiosaavn(query, count=45):
                 
                 artist = clean_string(r.get('primary_artists', '') or r.get('singers', ''))
                 album = clean_string(r.get('album', ''))
+                year = clean_string(str(r.get('year', '') or ''))
                 
                 songs.append({
                     'id': r.get('id', ''),
@@ -122,7 +144,8 @@ def search_jiosaavn(query, count=45):
                     'album': album,
                     'image': img,
                     'audioUrl': audio_url,
-                    'duration': duration
+                    'duration': duration,
+                    'year': year
                 })
     except Exception as e:
         print("Search error:", e)

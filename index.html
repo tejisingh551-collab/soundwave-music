@@ -298,6 +298,117 @@
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
     }
 
+    .badge-bhangra {
+      margin-left: auto;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+    }
+
+    .song-year-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.15rem 0.48rem;
+      border-radius: 8px;
+      margin-right: 0.45rem;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+
+    /* Year Filter Bar for Bhangra & Eras */
+    .year-filter-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .year-filter-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .year-filter-title {
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .year-filter-title i {
+      color: #f97316;
+    }
+
+    .year-filter-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .year-chips-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .year-chips-wrap::-webkit-scrollbar {
+      height: 4px;
+    }
+    .year-chips-wrap::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+
+    .year-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+    }
+
+    .year-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .year-chip.active {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 2px 12px rgba(249, 115, 22, 0.45);
+    }
+
     .badge-count {
       margin-left: auto;
       background: rgba(255, 255, 255, 0.1);
@@ -1384,25 +1495,46 @@
           </div>
         </div>
 
-        <!-- Genres & Charts -->
-        <div class="nav-section-title">Genres & Charts</div>
+        <!-- Devotional & Spiritual -->
+        <div class="nav-section-title">Devotional & Spiritual</div>
         <div class="nav-group">
           <div class="nav-item" id="nav-gurbani" onclick="navSelect('gurbani', 'ੴ Punjabi Shabad Gurbani', this)">
             <i class="fa-solid fa-hands-praying" style="color: #f59e0b;"></i>
             <span>Gurbani</span>
             <span class="badge-sikh">ੴ Pure</span>
           </div>
-          <div class="nav-item" id="nav-hindi" onclick="navSelect('hindi', '🇮🇳 Hindi Top 50 Chartbusters', this)">
-            <i class="fa-solid fa-music"></i>
-            <span>Hindi Top 50</span>
+          <div class="nav-item" id="nav-dhadrianwale" onclick="navSelect('dhadrianwale', 'ੴ Bhai Ranjit Singh Ji Dhadrianwale', this)">
+            <i class="fa-solid fa-microphone-lines" style="color: #f59e0b;"></i>
+            <span>Dhadrianwale</span>
+            <span class="badge-sikh">ੴ Diwan</span>
+          </div>
+        </div>
+
+        <!-- Genres & Moods -->
+        <div class="nav-section-title">Genres & Moods</div>
+        <div class="nav-group">
+          <div class="nav-item" id="nav-bhangra" onclick="navSelect('bhangra', '🥁 Punjabi Bhangra Hits', this)">
+            <i class="fa-solid fa-drum" style="color: #f97316;"></i>
+            <span>Bhangra Hits</span>
+            <span class="badge-bhangra">Year-Wise</span>
+          </div>
+          <div class="nav-item" id="nav-haryanvi" onclick="navSelect('haryanvi', '🚜 Haryanvi Hits', this)">
+            <i class="fa-solid fa-tractor" style="color: #22c55e;"></i>
+            <span>Haryanvi Hits</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #16a34a, #22c55e);">Desi</span>
+          </div>
+          <div class="nav-item" id="nav-sleeping" onclick="navSelect('sleeping', '🌙 Sleeping Music & Relaxation', this)">
+            <i class="fa-solid fa-moon" style="color: #818cf8;"></i>
+            <span>Sleeping Music</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">Zzz</span>
           </div>
           <div class="nav-item" id="nav-punjabi" onclick="navSelect('punjabi', '🌾 Punjabi Hits', this)">
             <i class="fa-solid fa-fire"></i>
             <span>Punjabi Hits</span>
           </div>
-          <div class="nav-item" id="nav-english" onclick="navSelect('english', '🌍 English Pop Hits', this)">
-            <i class="fa-solid fa-globe"></i>
-            <span>English Pop</span>
+          <div class="nav-item" id="nav-hindi" onclick="navSelect('hindi', '🇮🇳 Hindi Top 50 Chartbusters', this)">
+            <i class="fa-solid fa-music"></i>
+            <span>Hindi Top 50</span>
           </div>
           <div class="nav-item" id="nav-romantic" onclick="navSelect('romantic', '❤️ Romantic Melodies', this)">
             <i class="fa-solid fa-heart-pulse"></i>
@@ -1416,9 +1548,9 @@
             <i class="fa-solid fa-bolt"></i>
             <span>Party Bangers</span>
           </div>
-          <div class="nav-item" id="nav-haryanvi" onclick="navSelect('haryanvi', '🚜 Haryanvi Hits', this)">
-            <i class="fa-solid fa-tractor"></i>
-            <span>Haryanvi</span>
+          <div class="nav-item" id="nav-english" onclick="navSelect('english', '🌍 English Pop Hits', this)">
+            <i class="fa-solid fa-globe"></i>
+            <span>English Pop</span>
           </div>
         </div>
       </div>
@@ -1475,6 +1607,27 @@
             <i class="fa-solid fa-circle live-dot"></i>
             <span>Live 320kbps</span>
           </div>
+        </div>
+      </div>
+
+      <!-- Year-Wise Bhangra Filter Bar -->
+      <div class="year-filter-bar" id="yearFilterBar" style="display: none;">
+        <div class="year-filter-header">
+          <span class="year-filter-title"><i class="fa-solid fa-calendar-days"></i> Bhangra by Year:</span>
+          <span class="year-filter-desc">Click any era to stream Punjabi Dhol & Bhangra hits</span>
+        </div>
+        <div class="year-chips-wrap">
+          <button class="year-chip active" onclick="selectBhangraYear('all', this)">🥁 All Hits</button>
+          <button class="year-chip" onclick="selectBhangraYear('2025', this)">✨ 2025</button>
+          <button class="year-chip" onclick="selectBhangraYear('2024', this)">2024</button>
+          <button class="year-chip" onclick="selectBhangraYear('2023', this)">2023</button>
+          <button class="year-chip" onclick="selectBhangraYear('2022', this)">2022</button>
+          <button class="year-chip" onclick="selectBhangraYear('2021', this)">2021</button>
+          <button class="year-chip" onclick="selectBhangraYear('2020', this)">2020</button>
+          <button class="year-chip" onclick="selectBhangraYear('2015', this)">2015-19</button>
+          <button class="year-chip" onclick="selectBhangraYear('2010', this)">2010-14</button>
+          <button class="year-chip" onclick="selectBhangraYear('2000', this)">2000s Classic</button>
+          <button class="year-chip" onclick="selectBhangraYear('1990', this)">90s Vintage</button>
         </div>
       </div>
 
@@ -1671,10 +1824,25 @@
 
       activeKey = key;
       hubTitle.textContent = displayName;
-      if (key === 'gurbani') {
-        hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
+      
+      const yfb = document.getElementById('yearFilterBar');
+      if (key === 'bhangra') {
+        if (yfb) yfb.style.display = 'flex';
+        hubSubtitle.textContent = '🥁 High-Energy Punjabi Dhol & Bhangra • Filter By Year • 320kbps HD';
+        document.querySelectorAll('.year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else {
-        hubSubtitle.textContent = 'Clean Tracklist • 320kbps HD Audio • Live Cloud Stream';
+        if (yfb) yfb.style.display = 'none';
+        if (key === 'gurbani') {
+          hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
+        } else if (key === 'dhadrianwale') {
+          hubSubtitle.textContent = 'ੴ Purn Diwan, Gurmat Veechar & Shabad Kirtan • Full HD Audio Stream';
+        } else if (key === 'sleeping') {
+          hubSubtitle.textContent = '🌙 Deep Sleep Lo-Fi, Rain Sounds & 432Hz Calm Frequencies • 320kbps HD';
+        } else if (key === 'haryanvi') {
+          hubSubtitle.textContent = '🚜 Desi Haryanvi Ragni, Pop & Top Chartbusters • 320kbps HD';
+        } else {
+          hubSubtitle.textContent = 'Clean Tracklist • 320kbps HD Audio • Live Cloud Stream';
+        }
       }
 
       searchInput.value = '';
@@ -1686,10 +1854,38 @@
       fetchSongs(key);
     }
 
+    // Bhangra Year-Wise Selection Handler
+    function selectBhangraYear(yearKey, elem) {
+      document.querySelectorAll('.year-chip').forEach(c => c.classList.remove('active'));
+      if (elem) elem.classList.add('active');
+
+      const yearMap = {
+        'all': { q: 'bhangra', title: '🥁 Punjabi Bhangra: All Time Hits', sub: 'Top Dhol & High-Energy Bhangra Anthems' },
+        '2025': { q: 'bhangra_2025', title: '✨ Punjabi Bhangra: 2025 / 2026', sub: 'Latest New Releases & Fresh Dhol Beats' },
+        '2024': { q: 'bhangra_2024', title: '🥁 Punjabi Bhangra: 2024 Chartbusters', sub: 'Top Bhangra Hits of 2024' },
+        '2023': { q: 'bhangra_2023', title: '🥁 Punjabi Bhangra: 2023 Chartbusters', sub: 'Top Bhangra Hits of 2023' },
+        '2022': { q: 'bhangra_2022', title: '🥁 Punjabi Bhangra: 2022 Chartbusters', sub: 'Top Bhangra Hits of 2022' },
+        '2021': { q: 'bhangra_2021', title: '🥁 Punjabi Bhangra: 2021 Chartbusters', sub: 'Top Bhangra Hits of 2021' },
+        '2020': { q: 'bhangra_2020', title: '🥁 Punjabi Bhangra: 2020 Hits', sub: 'Top Bhangra Hits of 2020' },
+        '2015': { q: 'bhangra_2015', title: '🥁 Punjabi Bhangra: 2015 - 2019 Modern Era', sub: 'Diljit, Gippy, Ammy Virk & Honey Singh Era' },
+        '2010': { q: 'bhangra_2010', title: '🥁 Punjabi Bhangra: 2010 - 2014 Golden Beats', sub: 'Jazzy B, Diljit, Babbu Maan & Roshan Prince' },
+        '2000': { q: 'bhangra_2000', title: '🥁 Punjabi Bhangra: 2000s Classic Era', sub: 'Panjabi MC, Bally Sagoo, Lehmber & Sukshinder Shinda' },
+        '1990': { q: 'bhangra_1990', title: '🥁 Punjabi Bhangra: 90s Evergreen Era', sub: 'Gurdas Maan, Malkit Singh, Surjit Bindrakhia & Kuldeep Manak' }
+      };
+
+      const selected = yearMap[yearKey] || yearMap['all'];
+      hubTitle.textContent = selected.title;
+      hubSubtitle.textContent = selected.sub + ' • 320kbps HD';
+      fetchSongs(selected.q);
+    }
+
     // Switch to Favorites View with Clean Empty State
     function switchTab(tab, elem) {
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       if (elem) elem.classList.add('active');
+
+      const yfb = document.getElementById('yearFilterBar');
+      if (yfb) yfb.style.display = 'none';
 
       document.getElementById('sidebar').classList.remove('open');
       const bd = document.getElementById('sidebarBackdrop');
@@ -1712,7 +1908,11 @@
       romantic: '❤️ Romantic Melodies',
       lofi: '☕ Lo-Fi Midnight Chill',
       party: '⚡ Party Bangers',
-      haryanvi: '🚜 Haryanvi Hits'
+      haryanvi: '🚜 Haryanvi Hits',
+      gurbani: 'ੴ Punjabi Shabad Gurbani',
+      dhadrianwale: 'ੴ Bhai Ranjit Singh Ji Dhadrianwale',
+      sleeping: '🌙 Sleeping Music & Relaxation',
+      bhangra: '🥁 Punjabi Bhangra Hits'
     };
 
     // Force Visible Search Bar Clear Button (×) at right: 16px
@@ -1776,6 +1976,8 @@
           showToast(`🔍 Searching: "${transcript}"`, 2000);
           hubTitle.textContent = '🔍 Results for: ' + transcript;
           hubSubtitle.textContent = 'Showing matching tracks from cloud library';
+          const yfb = document.getElementById('yearFilterBar');
+          if (yfb) yfb.style.display = 'none';
           document.querySelectorAll('.nav-item').forEach(c => c.classList.remove('active'));
           fetchSongs(transcript);
         }
@@ -1854,15 +2056,22 @@
         if (res.ok) {
           const json = await res.json();
           if (json.results && json.results.length > 0) {
-            // Client-side safety filter: remove duplicates and ringtunes (> 10 mins, or 40 mins for Gurbani)
+            // Client-side safety filter: remove duplicates and ringtunes
             const seenTitles = new Set();
             const qLower = (query || '').toLowerCase();
+            const isDhadrian = qLower.includes('dhadrianwale') || qLower.includes('dhadrianwala') || qLower.includes('diwan') || qLower.includes('katha');
             const isGurbani = qLower.includes('gurbani') || qLower.includes('shabad') || qLower.includes('kirtan') || qLower.includes('simran') || qLower.includes('nitnem') || qLower.includes('waheguru');
-            const maxDur = isGurbani ? 2400 : 600;
+            const isSleep = qLower.includes('sleep') || qLower.includes('sleeping') || qLower.includes('ambient') || qLower.includes('meditation') || qLower.includes('relaxing');
+
+            let maxDur = 600;
+            if (isDhadrian) maxDur = 10800;
+            else if (isSleep) maxDur = 3600;
+            else if (isGurbani) maxDur = 2400;
+
             results = json.results.filter(s => {
               if (!s || !s.name) return false;
               const dur = parseInt(s.duration || 0);
-              // Filter out short previews (< 45s) and compilation ringtunes
+              // Filter out short previews (< 45s) and overly long tracks beyond category limit
               if (dur < 45 || dur > maxDur) return false;
 
               const lower = s.name.toLowerCase();
@@ -1941,6 +2150,7 @@
         const isCurrent = currentIndex === idx;
         const isPlaying = isCurrent && !audio.paused;
         const durStr = song.duration ? formatTime(song.duration) : '';
+        const yearStr = song.year && song.year !== '0' && song.year.length >= 4 ? song.year : '';
 
         // Unique Cover Art: If image is missing, empty, or already used by an earlier track in this playlist,
         // dynamically generate a distinct colorful gradient artwork based on its song title!
@@ -1973,6 +2183,7 @@
             <div class="song-title">${song.name}</div>
             <div class="song-artist">${song.artist}</div>
           </div>
+          ${yearStr ? `<span class="song-year-badge">${yearStr}</span>` : ''}
           ${durStr ? `<span class="song-duration-badge">${durStr}</span>` : ''}
           <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${idx})">
             <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
@@ -2271,6 +2482,8 @@
       const val = e.target.value.trim();
       if (!val) return;
       searchTimeout = setTimeout(() => {
+        const yfb = document.getElementById('yearFilterBar');
+        if (yfb) yfb.style.display = 'none';
         hubTitle.textContent = '🔍 Results for: ' + val;
         hubSubtitle.textContent = 'Showing matching tracks from cloud library';
         document.querySelectorAll('.nav-item').forEach(c => c.classList.remove('active'));
