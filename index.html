@@ -603,6 +603,375 @@
       transform: scale(0.95);
     }
 
+    /* User Profile Pill in Top Bar */
+    .user-pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.35rem 0.85rem 0.35rem 0.45rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      white-space: nowrap;
+      user-select: none;
+      backdrop-filter: blur(12px);
+    }
+    .user-pill-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(236, 72, 153, 0.4);
+      box-shadow: 0 0 15px rgba(236, 72, 153, 0.25);
+      transform: translateY(-1px);
+    }
+    .user-avatar-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    .user-name-text {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      max-width: 110px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* User Profile & Base Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 15, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .user-modal-card {
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 35px rgba(139, 92, 246, 0.2);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.8rem;
+      position: relative;
+    }
+    .user-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      position: relative;
+      margin-bottom: 1.2rem;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: -0.2rem;
+      right: -0.2rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      font-size: 1.4rem;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .modal-close-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border-color: #ef4444;
+    }
+    .user-avatar-picker-wrap {
+      position: relative;
+      cursor: pointer;
+    }
+    .user-modal-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: var(--accent-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      box-shadow: 0 4px 18px var(--accent-glow);
+    }
+    .user-modal-titles {
+      flex: 1;
+    }
+    .user-modal-name-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+    .user-name-input {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      outline: none;
+      width: 100%;
+      max-width: 200px;
+      font-family: inherit;
+    }
+    .user-name-input:focus {
+      border-color: var(--violet);
+      box-shadow: 0 0 10px var(--violet-glow);
+    }
+    .btn-save-name {
+      background: var(--accent-grad);
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .user-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .avatar-picker-bar {
+      margin-bottom: 1.2rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.65rem 0.9rem;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .picker-label {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 0.45rem;
+    }
+    .avatar-options {
+      display: flex;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+    .av-opt {
+      font-size: 1.45rem;
+      cursor: pointer;
+      padding: 0.25rem 0.35rem;
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+    .av-opt:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.25);
+    }
+    .user-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+      margin-bottom: 1.3rem;
+    }
+    .stat-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 12px;
+      padding: 0.7rem 0.5rem;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #f8fafc;
+      background: var(--accent-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-lbl {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+    .user-section-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .user-profiles-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-bottom: 0.8rem;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .user-profile-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.85rem;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: all 0.2s;
+    }
+    .user-profile-item.active {
+      background: rgba(139, 92, 246, 0.12);
+      border-color: rgba(139, 92, 246, 0.4);
+    }
+    .up-left {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .up-av {
+      font-size: 1.25rem;
+    }
+    .up-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #f8fafc;
+    }
+    .up-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .btn-switch-user {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-primary);
+      padding: 0.25rem 0.6rem;
+      font-size: 0.78rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-switch-user:hover {
+      background: var(--accent-grad);
+      border-color: transparent;
+    }
+    .btn-del-user {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      padding: 0.25rem;
+    }
+    .btn-del-user:hover {
+      color: #ef4444;
+    }
+    .add-user-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.3rem;
+    }
+    .add-user-row input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      padding: 0.55rem 0.85rem;
+      border-radius: 10px;
+      outline: none;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+    .btn-add-user {
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c084fc;
+      padding: 0.55rem 0.95rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.82rem;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-add-user:hover {
+      background: var(--accent-grad);
+      color: #fff;
+      border-color: transparent;
+    }
+    .user-modal-actions {
+      display: flex;
+      gap: 0.65rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .btn-apk-dl, .btn-cloud-sync {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.65rem 0.85rem;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-apk-dl {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    .btn-apk-dl:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    }
+    .btn-cloud-sync {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+    }
+    .btn-cloud-sync:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--violet);
+    }
+
     /* Hero Banner with "Play All" Button */
     .hero-banner {
       background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
@@ -1518,6 +1887,10 @@
             <span>My Favorites</span>
             <span class="badge-count" id="favCountBadge">0</span>
           </div>
+          <div class="nav-item" id="nav-history" onclick="switchTab('history', this)">
+            <i class="fa-solid fa-clock-rotate-left" style="color:#38bdf8;"></i>
+            <span>Recently Played</span>
+          </div>
           <div class="nav-item" id="nav-install" onclick="triggerAppInstall()">
             <i class="fa-brands fa-android" style="color:#10b981;"></i>
             <span>Install App</span>
@@ -1538,6 +1911,11 @@
             <span>Dhadrianwale</span>
             <span class="badge-sikh">ੴ Diwan</span>
           </div>
+          <div class="nav-item" id="nav-japji-sartaj" onclick="navSelect('japji_sartaj', 'ੴ Japji Sahib (Satinder Sartaaj)', this)">
+            <i class="fa-solid fa-book-open" style="color: #f59e0b;"></i>
+            <span>Japji Sahib</span>
+            <span class="badge-sikh">ੴ Sartaaj</span>
+          </div>
         </div>
 
         <!-- Genres & Moods -->
@@ -1552,6 +1930,11 @@
             <i class="fa-solid fa-tractor" style="color: #22c55e;"></i>
             <span>Haryanvi Hits</span>
             <span class="badge-pill" style="background: linear-gradient(135deg, #16a34a, #22c55e);">Desi</span>
+          </div>
+          <div class="nav-item" id="nav-bhojpuri" onclick="navSelect('bhojpuri', '🌶️ Bhojpuri Hits', this)">
+            <i class="fa-solid fa-fire-flame-curved" style="color: #ef4444;"></i>
+            <span>Bhojpuri Hits</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #ef4444, #f97316);">Dhamaka</span>
           </div>
           <div class="nav-item" id="nav-sleeping" onclick="navSelect('sleeping', '🌙 Sleeping Music & Relaxation', this)">
             <i class="fa-solid fa-moon" style="color: #818cf8;"></i>
@@ -1619,6 +2002,12 @@
               &times;
             </button>
           </div>
+        </div>
+
+        <!-- User Profile Pill in Top Bar -->
+        <div class="user-pill-btn" onclick="openUserModal()" title="TejiMusic User Profile & Accounts">
+          <span class="user-avatar-badge" id="topBarUserAvatar">👑</span>
+          <span class="user-name-text" id="topBarUserName">Teji Singh</span>
         </div>
       </div>
 
@@ -1738,10 +2127,282 @@
     </div>
   </div>
 
+  <!-- User Base & Profiles Modal -->
+  <div class="modal-backdrop" id="userModalBackdrop" onclick="closeUserModal(event)">
+    <div class="user-modal-card" onclick="event.stopPropagation()">
+      <div class="user-modal-header">
+        <div class="user-avatar-picker-wrap">
+          <div class="user-modal-avatar" id="modalUserAvatar">👑</div>
+        </div>
+        <div class="user-modal-titles">
+          <div class="user-modal-name-row">
+            <input type="text" id="modalUserNameInput" class="user-name-input" value="Teji Singh" />
+            <button class="btn-save-name" onclick="saveActiveUserName()" title="Save Name"><i class="fa-solid fa-check"></i></button>
+          </div>
+          <div class="user-status-badge"><i class="fa-solid fa-shield-halved"></i> TejiMusic VIP Member</div>
+        </div>
+        <button class="modal-close-btn" onclick="closeUserModal()">&times;</button>
+      </div>
+
+      <!-- Emoji Avatar Selector -->
+      <div class="avatar-picker-bar">
+        <span class="picker-label">Choose Avatar:</span>
+        <div class="avatar-options">
+          <span class="av-opt" onclick="selectUserAvatar('👑')">👑</span>
+          <span class="av-opt" onclick="selectUserAvatar('🎧')">🎧</span>
+          <span class="av-opt" onclick="selectUserAvatar('🦁')">🦁</span>
+          <span class="av-opt" onclick="selectUserAvatar('⚡')">⚡</span>
+          <span class="av-opt" onclick="selectUserAvatar('🚜')">🚜</span>
+          <span class="av-opt" onclick="selectUserAvatar('👳')">👳</span>
+          <span class="av-opt" onclick="selectUserAvatar('🎵')">🎵</span>
+          <span class="av-opt" onclick="selectUserAvatar('⭐')">⭐</span>
+          <span class="av-opt" onclick="selectUserAvatar('🔥')">🔥</span>
+        </div>
+      </div>
+
+      <!-- Listening Stats -->
+      <div class="user-stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="statSongsPlayed">0</div>
+          <div class="stat-lbl">Songs Streamed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statFavCount">0</div>
+          <div class="stat-lbl">Favorites</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="statUserTier">VIP Pro</div>
+          <div class="stat-lbl">Tier</div>
+        </div>
+      </div>
+
+      <!-- User Accounts / Switcher -->
+      <div class="user-section-title">
+        <span><i class="fa-solid fa-users"></i> User Accounts (Multi-User)</span>
+      </div>
+      <div class="user-profiles-list" id="userProfilesList">
+        <!-- Rendered dynamically -->
+      </div>
+      <div class="add-user-row">
+        <input type="text" id="newUserInput" placeholder="Enter new user name (e.g. Aman, Gurpreet)..." onkeydown="if(event.key==='Enter') addNewUserProfile()" />
+        <button class="btn-add-user" onclick="addNewUserProfile()"><i class="fa-solid fa-user-plus"></i> Add User</button>
+      </div>
+
+      <!-- Cloud Sync & APK Download Actions -->
+      <div class="user-modal-actions">
+        <a href="/TejiMusic.apk" download="TejiMusic.apk" class="btn-apk-dl">
+          <i class="fa-brands fa-android"></i> Download APK
+        </a>
+        <button class="btn-cloud-sync" onclick="syncActiveUserToCloud()">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Sync to Cloud
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ==========================================
+    // TEJIMUSIC USER BASE & MULTI-USER SYSTEM
+    // ==========================================
+    let usersData = JSON.parse(localStorage.getItem('tejimusic_users') || 'null');
+    let activeUserId = localStorage.getItem('tejimusic_active_user') || 'teji_singh';
+
+    if (!usersData) {
+      const initialFavs = JSON.parse(localStorage.getItem('tejimusic_favs') || localStorage.getItem('soundwave_favs') || '[]');
+      usersData = {
+        'teji_singh': {
+          id: 'teji_singh',
+          name: 'Teji Singh',
+          avatar: '👑',
+          tier: 'VIP Pro',
+          favorites: initialFavs,
+          history: [],
+          stats: { songsPlayed: 0, joinedDate: new Date().toISOString() }
+        }
+      };
+      localStorage.setItem('tejimusic_users', JSON.stringify(usersData));
+      localStorage.setItem('tejimusic_active_user', 'teji_singh');
+    }
+
+    function getActiveUser() {
+      if (!usersData[activeUserId]) {
+        activeUserId = Object.keys(usersData)[0] || 'teji_singh';
+      }
+      return usersData[activeUserId];
+    }
+
+    function saveUsersData() {
+      localStorage.setItem('tejimusic_users', JSON.stringify(usersData));
+      localStorage.setItem('tejimusic_active_user', activeUserId);
+      localStorage.setItem('tejimusic_favs', JSON.stringify(getActiveUser().favorites || []));
+      updateUserUI();
+    }
+
+    function updateUserUI() {
+      const u = getActiveUser();
+      const topAv = document.getElementById('topBarUserAvatar');
+      const topName = document.getElementById('topBarUserName');
+      if (topAv) topAv.textContent = u.avatar || '👑';
+      if (topName) topName.textContent = u.name || 'Teji Singh';
+
+      const modAv = document.getElementById('modalUserAvatar');
+      const modName = document.getElementById('modalUserNameInput');
+      const statPlayed = document.getElementById('statSongsPlayed');
+      const statFav = document.getElementById('statFavCount');
+      const statTier = document.getElementById('statUserTier');
+
+      if (modAv) modAv.textContent = u.avatar || '👑';
+      if (modName) modName.value = u.name || '';
+      if (statPlayed) statPlayed.textContent = u.stats ? (u.stats.songsPlayed || 0) : 0;
+      if (statFav) statFav.textContent = (u.favorites || []).length;
+      if (statTier) statTier.textContent = u.tier || 'VIP Pro';
+
+      favorites = u.favorites || [];
+      updateFavCount();
+      renderUserProfilesList();
+    }
+
+    function renderUserProfilesList() {
+      const list = document.getElementById('userProfilesList');
+      if (!list) return;
+      list.innerHTML = '';
+
+      Object.values(usersData).forEach(u => {
+        const isActive = u.id === activeUserId;
+        const div = document.createElement('div');
+        div.className = `user-profile-item ${isActive ? 'active' : ''}`;
+        div.innerHTML = `
+          <div class="up-left">
+            <span class="up-av">${u.avatar || '👤'}</span>
+            <span class="up-name">${u.name} ${isActive ? '<small style="color:#38bdf8;font-size:0.75rem;">(Active)</small>' : ''}</span>
+          </div>
+          <div class="up-actions">
+            ${!isActive ? `<button class="btn-switch-user" onclick="switchActiveUser('${u.id}')">Switch</button>` : ''}
+            ${Object.keys(usersData).length > 1 && !isActive ? `<button class="btn-del-user" onclick="deleteUser('${u.id}')" title="Delete Profile"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function openUserModal() {
+      updateUserUI();
+      document.getElementById('userModalBackdrop').classList.add('open');
+    }
+
+    function closeUserModal(e) {
+      if (e && e.target && e.target.id !== 'userModalBackdrop' && !e.target.classList.contains('modal-close-btn')) {
+        return;
+      }
+      document.getElementById('userModalBackdrop').classList.remove('open');
+    }
+
+    function switchActiveUser(uid) {
+      if (!usersData[uid]) return;
+      activeUserId = uid;
+      saveUsersData();
+      showToast(`Switched to user: ${usersData[uid].name} ✨`, 2500);
+
+      if (hubTitle.textContent.includes('Favorites')) {
+        currentPlaylist = getActiveUser().favorites || [];
+        renderSongList(currentPlaylist);
+      } else if (hubTitle.textContent.includes('Recently Played')) {
+        currentPlaylist = getActiveUser().history || [];
+        renderSongList(currentPlaylist);
+      }
+    }
+
+    function addNewUserProfile() {
+      const input = document.getElementById('newUserInput');
+      const name = (input.value || '').trim();
+      if (!name) {
+        showToast('Please enter a user name!', 2000);
+        return;
+      }
+      const newId = 'user_' + Date.now();
+      const avatars = ['🦁', '🎧', '⚡', '🚜', '👳', '🎵', '⭐', '🔥'];
+      const randomAv = avatars[Math.floor(Math.random() * avatars.length)];
+
+      usersData[newId] = {
+        id: newId,
+        name: name,
+        avatar: randomAv,
+        tier: 'VIP Member',
+        favorites: [],
+        history: [],
+        stats: { songsPlayed: 0, joinedDate: new Date().toISOString() }
+      };
+
+      input.value = '';
+      activeUserId = newId;
+      saveUsersData();
+      showToast(`New user profile created: ${name}! 🎉`, 3000);
+    }
+
+    function deleteUser(uid) {
+      if (Object.keys(usersData).length <= 1) {
+        showToast('Cannot delete the only remaining profile!', 2000);
+        return;
+      }
+      const name = usersData[uid]?.name || 'User';
+      delete usersData[uid];
+      if (activeUserId === uid) {
+        activeUserId = Object.keys(usersData)[0];
+      }
+      saveUsersData();
+      showToast(`Profile ${name} removed.`, 2000);
+    }
+
+    function selectUserAvatar(emoji) {
+      const u = getActiveUser();
+      u.avatar = emoji;
+      saveUsersData();
+      showToast(`Avatar updated to ${emoji}`, 1500);
+    }
+
+    function saveActiveUserName() {
+      const input = document.getElementById('modalUserNameInput');
+      const val = (input.value || '').trim();
+      if (!val) return;
+      const u = getActiveUser();
+      u.name = val;
+      saveUsersData();
+      showToast(`User name saved: ${val} ✔️`, 2000);
+    }
+
+    async function syncActiveUserToCloud() {
+      const u = getActiveUser();
+      showToast('Syncing profile to cloud...', 1500);
+      try {
+        const res = await fetch('/api/user/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(u)
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('☁️ Profile synced to cloud successfully!', 3000);
+        } else {
+          showToast('Cloud sync note: saved locally in browser.', 2000);
+        }
+      } catch (e) {
+        showToast('Saved locally in browser!', 2000);
+      }
+    }
+
+    function recordUserPlay(song) {
+      if (!song) return;
+      const u = getActiveUser();
+      if (!u.stats) u.stats = { songsPlayed: 0 };
+      u.stats.songsPlayed = (u.stats.songsPlayed || 0) + 1;
+      if (!u.history) u.history = [];
+      u.history = [song, ...u.history.filter(h => h.id !== song.id)].slice(0, 50);
+      saveUsersData();
+    }
+
     let currentPlaylist = [];
     let currentIndex = -1;
-    let favorites = JSON.parse(localStorage.getItem('tejimusic_favs') || localStorage.getItem('soundwave_favs') || '[]');
+    let favorites = getActiveUser().favorites || [];
     let activeKey = 'home';
     let isShuffle = false;
     let isRepeat = false;
@@ -1870,10 +2531,14 @@
           hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
         } else if (key === 'dhadrianwale') {
           hubSubtitle.textContent = 'ੴ Purn Diwan, Gurmat Veechar & Shabad Kirtan • Full HD Audio Stream';
+        } else if (key === 'japji_sartaj') {
+          hubSubtitle.textContent = 'ੴ Japji Sahib Recited by Dr. Satinder Sartaaj • Complete 39-Min Path • 320kbps HD';
         } else if (key === 'sleeping') {
           hubSubtitle.textContent = '🌙 Deep Sleep Lo-Fi, Rain Sounds & 432Hz Calm Frequencies • 320kbps HD';
         } else if (key === 'haryanvi') {
           hubSubtitle.textContent = '🚜 Desi Haryanvi Ragni, Pop & Top Chartbusters • 320kbps HD';
+        } else if (key === 'bhojpuri') {
+          hubSubtitle.textContent = '🌶️ Superhit Bhojpuri Songs & High-Bass Dhamaka • 320kbps HD';
         } else {
           hubSubtitle.textContent = 'Clean Tracklist • 320kbps HD Audio • Live Cloud Stream';
         }
@@ -1926,10 +2591,17 @@
       if (bd) bd.classList.remove('open');
 
       if (tab === 'favorites') {
-        hubTitle.textContent = '❤️ My Favorites Playlist';
+        const u = getActiveUser();
+        hubTitle.textContent = '❤️ ' + u.name + "'s Favorites";
         hubSubtitle.textContent = `${favorites.length} saved songs in your personal library`;
         currentPlaylist = favorites;
         renderSongList(favorites);
+      } else if (tab === 'history') {
+        const u = getActiveUser();
+        hubTitle.textContent = '🕒 ' + u.name + "'s Recently Played";
+        hubSubtitle.textContent = `${(u.history || []).length} recently played tracks • Instant Replay`;
+        currentPlaylist = u.history || [];
+        renderSongList(currentPlaylist);
       }
     }
 
@@ -1943,8 +2615,10 @@
       lofi: '☕ Lo-Fi Midnight Chill',
       party: '⚡ Party Bangers',
       haryanvi: '🚜 Haryanvi Hits',
+      bhojpuri: '🌶️ Bhojpuri Hits',
       gurbani: 'ੴ Punjabi Shabad Gurbani',
       dhadrianwale: 'ੴ Bhai Ranjit Singh Ji Dhadrianwale',
+      japji_sartaj: 'ੴ Japji Sahib (Satinder Sartaaj)',
       sleeping: '🌙 Sleeping Music & Relaxation',
       bhangra: '🥁 Punjabi Bhangra Hits'
     };
@@ -2094,13 +2768,13 @@
             const seenTitles = new Set();
             const qLower = (query || '').toLowerCase();
             const isDhadrian = qLower.includes('dhadrianwale') || qLower.includes('dhadrianwala') || qLower.includes('diwan') || qLower.includes('katha');
-            const isGurbani = qLower.includes('gurbani') || qLower.includes('shabad') || qLower.includes('kirtan') || qLower.includes('simran') || qLower.includes('nitnem') || qLower.includes('waheguru');
+            const isGurbani = qLower.includes('gurbani') || qLower.includes('shabad') || qLower.includes('kirtan') || qLower.includes('simran') || qLower.includes('nitnem') || qLower.includes('waheguru') || qLower.includes('japji') || qLower.includes('sartaj') || qLower.includes('sartaaj');
             const isSleep = qLower.includes('sleep') || qLower.includes('sleeping') || qLower.includes('ambient') || qLower.includes('meditation') || qLower.includes('relaxing');
 
             let maxDur = 600;
             if (isDhadrian) maxDur = 10800;
             else if (isSleep) maxDur = 3600;
-            else if (isGurbani) maxDur = 2400;
+            else if (isGurbani) maxDur = 4200;
 
             results = json.results.filter(s => {
               if (!s || !s.name) return false;
@@ -2254,6 +2928,7 @@
           playIcon.className = 'fa-solid fa-pause';
           updatePlayerCardState();
           setupMediaSession(song);
+          recordUserPlay(song);
         }).catch(err => {
           console.error('Audio play error:', err);
           playIcon.className = 'fa-solid fa-play';
@@ -2489,8 +3164,9 @@
         favorites.push(song);
         showToast('Added to Favorites ❤️');
       }
-      localStorage.setItem('tejimusic_favs', JSON.stringify(favorites));
-      updateFavCount();
+      const u = getActiveUser();
+      u.favorites = favorites;
+      saveUsersData();
 
       if (hubTitle.textContent.includes('Favorites')) {
         currentPlaylist = favorites;
@@ -2563,6 +3239,9 @@
         });
       });
     }
+
+    // Initialize User Base UI
+    updateUserUI();
 
     // Default Load: Home
     fetchSongs('home');

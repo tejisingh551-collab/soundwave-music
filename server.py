@@ -28,8 +28,10 @@ TRENDING_PRESETS = {
     "lofi": "Hindi Lofi",
     "party": "Party Hindi",
     "haryanvi": "Top Haryanvi",
+    "bhojpuri": "Top Bhojpuri Songs",
     "gurbani": "Shabad Gurbani Kirtan",
     "dhadrianwale": "Bhai Ranjit Singh Ji Dhadrianwale",
+    "japji_sartaj": "Satinder Sartaaj Japji Sahib",
     "sleeping": "Relaxing Sleep",
     "bhangra": "Top Punjabi Bhangra Hits",
     "bhangra_2025": "Latest Punjabi Bhangra Songs 2025",
@@ -61,7 +63,13 @@ def search_jiosaavn(query, count=45):
         query = "Trending Hindi"
     
     q_lower = query.lower().strip()
-    if q_lower in TRENDING_PRESETS:
+    if ('japji' in q_lower and ('sartaj' in q_lower or 'sartaaj' in q_lower)) or q_lower == 'japji_sartaj':
+        query = "Satinder Sartaaj Japji Sahib"
+        q_lower = "japji_sartaj"
+    elif 'bhojpuri' in q_lower:
+        query = "Top Bhojpuri Songs"
+        q_lower = "bhojpuri"
+    elif q_lower in TRENDING_PRESETS:
         query = TRENDING_PRESETS[q_lower]
         
     encoded_query = urllib.parse.quote(query)
@@ -97,8 +105,8 @@ def search_jiosaavn(query, count=45):
                 duration = int(r.get('duration', 0)) if r.get('duration') else 0
                 if any(k in q_lower for k in ['dhadrianwale', 'dhadrianwala', 'diwan', 'katha']):
                     max_dur = 10800
-                elif any(k in q_lower for k in ['gurbani', 'shabad', 'kirtan', 'simran', 'nitnem', 'waheguru']):
-                    max_dur = 2400
+                elif any(k in q_lower for k in ['gurbani', 'shabad', 'kirtan', 'simran', 'nitnem', 'waheguru', 'japji', 'sartaj', 'sartaaj']):
+                    max_dur = 4200
                 elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing']):
                     max_dur = 3600
                 else:
@@ -183,6 +191,39 @@ class MusicAppHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(content)
             except Exception as e:
                 self.send_error(404, "File not found")
+        elif parsed.path in ['/TejiMusic.apk', '/download/apk']:
+            try:
+                file_path = os.path.join(DIRECTORY, 'TejiMusic.apk')
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.android.package-archive')
+                self.send_header('Content-Disposition', 'attachment; filename="TejiMusic.apk"')
+                self.send_header('Content-Length', str(len(content)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(content)
+            except Exception as e:
+                self.send_error(404, "File not found")
+        elif parsed.path == '/api/user/load':
+            query_params = urllib.parse.parse_qs(parsed.query)
+            uname = query_params.get('username', [''])[0].strip().lower()
+            users_file = os.path.join(DIRECTORY, 'users_db.json')
+            user_data = {}
+            if os.path.exists(users_file):
+                try:
+                    with open(users_file, 'r', encoding='utf-8') as f:
+                        all_users = json.load(f)
+                        user_data = all_users.get(uname, {})
+                except Exception:
+                    pass
+            body = json.dumps({'success': True, 'user': user_data}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(body)
         elif parsed.path == '/manifest.json':
             try:
                 file_path = os.path.join(DIRECTORY, 'manifest.json')
@@ -197,6 +238,52 @@ class MusicAppHandler(SimpleHTTPRequestHandler):
                 self.send_error(404, "File not found")
         else:
             super().do_GET()
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
+    def do_POST(self):
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path == '/api/user/sync':
+            try:
+                length = int(self.headers.get('Content-Length', 0))
+                req_data = json.loads(self.rfile.read(length).decode('utf-8'))
+                uname = (req_data.get('username') or req_data.get('name', '')).strip().lower()
+                if not uname:
+                    uname = "default_user"
+                users_file = os.path.join(DIRECTORY, 'users_db.json')
+                all_users = {}
+                if os.path.exists(users_file):
+                    try:
+                        with open(users_file, 'r', encoding='utf-8') as f:
+                            all_users = json.load(f)
+                    except Exception:
+                        pass
+                all_users[uname] = req_data
+                with open(users_file, 'w', encoding='utf-8') as f:
+                    json.dump(all_users, f, indent=2, ensure_ascii=False)
+                
+                body = json.dumps({'success': True, 'message': 'User profile synced successfully'}).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception as e:
+                err_body = json.dumps({'success': False, 'error': str(e)}).encode('utf-8')
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json; charset=utf-8')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.end_headers()
+                self.wfile.write(err_body)
+        else:
+            self.send_error(404, "Not found")
 
 if __name__ == '__main__':
     server = ThreadingHTTPServer(('0.0.0.0', PORT), MusicAppHandler)
