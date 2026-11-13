@@ -27,7 +27,7 @@ TRENDING_PRESETS = {
     "haryanvi": "Top Haryanvi",
     "gurbani": "Shabad Gurbani Kirtan",
     "dhadrianwale": "Bhai Ranjit Singh Ji Dhadrianwale",
-    "sleeping": "Deep Sleep Relaxing Music Lo-Fi Chill",
+    "sleeping": "Sleeping Music",
     "bhangra": "Top Punjabi Bhangra Hits",
     "bhangra_2025": "Latest Punjabi Bhangra Songs 2025",
     "bhangra_2024": "Punjabi Bhangra Songs 2024",
