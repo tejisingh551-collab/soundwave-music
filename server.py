@@ -172,5 +172,5 @@ class MusicAppHandler(SimpleHTTPRequestHandler):
 if __name__ == '__main__':
     server = ThreadingHTTPServer(('0.0.0.0', PORT), MusicAppHandler)
     server.daemon_threads = True
-    print(f"SoundWave Server ready on http://localhost:{PORT}")
+    print(f"TejiMusic Server ready on http://localhost:{PORT}")
     server.serve_forever()

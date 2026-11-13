@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>SoundWave // Premium Music</title>
+  <title>TejiMusic // Premium Music</title>
 
   <!-- iOS Meta Tags for Home Screen -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="SoundWave" />
+  <meta name="apple-mobile-web-app-title" content="TejiMusic" />
   <meta name="theme-color" content="#0A0E1A" />
   <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=180&h=180&fit=crop" />
 
@@ -1467,7 +1467,7 @@
               <i class="fa-solid fa-waveform"></i>
             </div>
             <div>
-              <div class="brand-text">SoundWave</div>
+              <div class="brand-text">TejiMusic</div>
               <span class="brand-badge">Full Songs HD</span>
             </div>
           </div>
@@ -1654,7 +1654,7 @@
         <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100" id="playerThumb" class="player-thumb" alt="Thumbnail" />
         <div class="player-meta">
           <div class="player-title" id="playerTitle">Select a song to play</div>
-          <div class="player-artist" id="playerArtist">SoundWave Live Stream</div>
+          <div class="player-artist" id="playerArtist">TejiMusic Live Stream</div>
         </div>
         <button class="fav-btn" id="playerFavBtn" onclick="toggleFavoriteCurrent()" title="Favorite">
           <i class="fa-regular fa-heart"></i>
@@ -1707,7 +1707,7 @@
   <script>
     let currentPlaylist = [];
     let currentIndex = -1;
-    let favorites = JSON.parse(localStorage.getItem('soundwave_favs') || '[]');
+    let favorites = JSON.parse(localStorage.getItem('tejimusic_favs') || localStorage.getItem('soundwave_favs') || '[]');
     let activeKey = 'home';
     let isShuffle = false;
     let isRepeat = false;
@@ -2401,7 +2401,7 @@
         navigator.mediaSession.metadata = new MediaMetadata({
           title: song.name,
           artist: song.artist,
-          album: song.album || 'SoundWave Music',
+          album: song.album || 'TejiMusic',
           artwork: [{ src: song.displayThumb || (song.image && song.image.length > 10 ? song.image : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500'), sizes: '512x512', type: 'image/jpeg' }]
         });
 
@@ -2455,7 +2455,7 @@
         favorites.push(song);
         showToast('Added to Favorites ❤️');
       }
-      localStorage.setItem('soundwave_favs', JSON.stringify(favorites));
+      localStorage.setItem('tejimusic_favs', JSON.stringify(favorites));
       updateFavCount();
 
       if (hubTitle.textContent.includes('Favorites')) {
