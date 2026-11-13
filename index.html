@@ -2269,6 +2269,22 @@
         </div>
       </div>
 
+      <!-- Lo-Fi Midnight Mood & Style Filter Bar -->
+      <div class="year-filter-bar" id="lofiFilterBar" style="display: none; border-color: rgba(168, 85, 247, 0.35); background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);">
+        <div class="year-filter-header">
+          <span class="year-filter-title" style="color: #c084fc;"><i class="fa-solid fa-moon"></i> Lo-Fi Midnight Vibes:</span>
+          <span class="year-filter-desc">Aesthetic Chill, Bollywood Lo-Fi Flips, Midnight Beats & Study Chillhop</span>
+        </div>
+        <div class="year-chips-wrap">
+          <button class="year-chip active" onclick="selectLofiFilter('all', this)" style="border-color: rgba(168, 85, 247, 0.6);">☕ All Lo-Fi</button>
+          <button class="year-chip" onclick="selectLofiFilter('midnight', this)">🌙 Midnight Beats</button>
+          <button class="year-chip" onclick="selectLofiFilter('bollywood', this)">🎬 Bollywood Lo-Fi</button>
+          <button class="year-chip" onclick="selectLofiFilter('punjabi', this)">🌾 Punjabi Lo-Fi</button>
+          <button class="year-chip" onclick="selectLofiFilter('chillhop', this)">🎧 Chillhop & Study</button>
+          <button class="year-chip" onclick="selectLofiFilter('rain', this)">🌧️ Rain & Relax</button>
+        </div>
+      </div>
+
       <!-- Toast Feedback -->
       <div class="toast-msg" id="toastMsg"></div>
 
@@ -2999,6 +3015,8 @@
       if (yfb) yfb.style.display = 'none';
       const afb = document.getElementById('angFilterBar');
       if (afb) afb.style.display = 'none';
+      const lfb = document.getElementById('lofiFilterBar');
+      if (lfb) lfb.style.display = 'none';
       const lmc = document.getElementById('loadMoreContainer');
       if (lmc) lmc.style.display = 'none';
 
@@ -3322,19 +3340,29 @@
       
       const yfb = document.getElementById('yearFilterBar');
       const afb = document.getElementById('angFilterBar');
+      const lfb = document.getElementById('lofiFilterBar');
       if (key === 'bhangra') {
         if (yfb) yfb.style.display = 'flex';
         if (afb) afb.style.display = 'none';
+        if (lfb) lfb.style.display = 'none';
         hubSubtitle.textContent = '🥁 High-Energy Punjabi Dhol & Bhangra • Filter By Year • 320kbps HD';
         document.querySelectorAll('#yearFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else if (key === 'sehaj_path') {
         if (yfb) yfb.style.display = 'none';
         if (afb) afb.style.display = 'flex';
+        if (lfb) lfb.style.display = 'none';
         hubSubtitle.textContent = 'ੴ Sri Guru Granth Sahib Ji Sampooran Sehaj Path (Ang 1 to 1430) • Full Episodes';
         document.querySelectorAll('#angFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
+      } else if (key === 'lofi') {
+        if (yfb) yfb.style.display = 'none';
+        if (afb) afb.style.display = 'none';
+        if (lfb) lfb.style.display = 'flex';
+        hubSubtitle.textContent = '☕ Midnight Aesthetic Lo-Fi, Bollywood Flips & Rainy Night Beats • 320kbps HD';
+        document.querySelectorAll('#lofiFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else {
         if (yfb) yfb.style.display = 'none';
         if (afb) afb.style.display = 'none';
+        if (lfb) lfb.style.display = 'none';
         if (key === 'gurbani') {
           hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
         } else if (key === 'sehaj_path') {
@@ -3428,6 +3456,39 @@
       }
     }
 
+    // Lo-Fi Midnight Mood & Style Selection Handler
+    function selectLofiFilter(filterKey, elem) {
+      const bar = document.getElementById('lofiFilterBar');
+      if (bar) {
+        bar.querySelectorAll('.year-chip').forEach(c => {
+          c.classList.remove('active');
+          c.style.borderColor = '';
+        });
+      }
+      if (elem) {
+        elem.classList.add('active');
+        elem.style.borderColor = 'rgba(168, 85, 247, 0.8)';
+      }
+
+      const hubTitle = document.getElementById('hubTitle');
+      const hubSubtitle = document.getElementById('hubSubtitle');
+      currentPage = 1;
+
+      const lofiMap = {
+        'all': { q: 'lofi', title: '☕ Lo-Fi Midnight Chill & Aesthetic Beats', sub: 'Aesthetic Bollywood Flips, Midnight Beats & Chillhop • 320kbps HD' },
+        'midnight': { q: 'lofi_midnight', title: '🌙 Midnight Lo-Fi Chill Beats', sub: 'Late Night Instrumental Ambient & Aesthetic Chillhop • 320kbps HD' },
+        'bollywood': { q: 'lofi_bollywood', title: '🎬 Bollywood Lo-Fi Hits', sub: 'Arijit Singh, Pritam, Jubin Nautiyal & B Praak Acoustic Lo-Fi Flips' },
+        'punjabi': { q: 'lofi_punjabi', title: '🌾 Punjabi Lo-Fi Vibes', sub: 'Harrdy Sandhu, AP Dhillon, B Praak & Diljit Slowed & Lo-Fi Mixes' },
+        'chillhop': { q: 'lofi_chillhop', title: '🎧 Chillhop & Study Beats', sub: 'Focus, Coding, Study & Ambient Chill Instrumental Beats' },
+        'rain': { q: 'lofi_rain', title: '🌧️ Lo-Fi Rain & Sleep Sounds', sub: 'Calming Rain Drops, Soft Keys & Sleep Ambient Waves' }
+      };
+
+      const target = lofiMap[filterKey] || lofiMap['all'];
+      if (hubTitle) hubTitle.textContent = target.title;
+      if (hubSubtitle) hubSubtitle.textContent = target.sub;
+      fetchSongs(target.q, 1, false);
+    }
+
     // Switch to Favorites View with Clean Empty State
     function switchTab(tab, elem) {
       activeCustomPlaylistId = null;
@@ -3439,6 +3500,10 @@
 
       const yfb = document.getElementById('yearFilterBar');
       if (yfb) yfb.style.display = 'none';
+      const afb = document.getElementById('angFilterBar');
+      if (afb) afb.style.display = 'none';
+      const lfb = document.getElementById('lofiFilterBar');
+      if (lfb) lfb.style.display = 'none';
       const lmc = document.getElementById('loadMoreContainer');
       if (lmc) lmc.style.display = 'none';
 
@@ -3641,10 +3706,11 @@
             const qLower = (query || '').toLowerCase();
             const isDevotional = ['sehaj', 'paath', 'path', 'sukhmani', 'nitnem', 'gurbani', 'shabad', 'kirtan', 'simran', 'waheguru', 'japji', 'jaap', 'chaupai', 'rehras', 'sohila', 'dukh bhanjani', 'asa di war', 'asa di vaar', 'dhadrianwale', 'dhadrianwala', 'diwan', 'katha'].some(k => qLower.includes(k));
             const isSleep = qLower.includes('sleep') || qLower.includes('sleeping') || qLower.includes('ambient') || qLower.includes('meditation') || qLower.includes('relaxing');
+            const isLofi = qLower.includes('lofi') || qLower.includes('lo-fi') || qLower.includes('chillhop');
 
             let maxDur = 900;
             if (isDevotional) maxDur = 18000; // 5 hours - Full paths never cut!
-            else if (isSleep) maxDur = 3600;
+            else if (isSleep || isLofi) maxDur = 3600;
 
             results = json.results.filter(s => {
               if (!s || !s.name) return false;
@@ -3657,13 +3723,14 @@
               }
 
               const base = s.name.replace(/\(.*?\)|\[.*?\]/g, '')
-                .replace(/\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b/gi, '')
+                .replace(isLofi ? /\b(trending version|trending|ringtune|ringtone|version|full song|audio|official|video|song)\b/gi : /\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b/gi, '')
                 .replace(/[^a-zA-Z0-9]/g, '')
                 .toLowerCase()
                 .trim();
 
-              if (!base || seenTitles.has(base)) return false;
-              seenTitles.add(base);
+              const finalKey = base || s.name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase().trim();
+              if (!finalKey || seenTitles.has(finalKey)) return false;
+              seenTitles.add(finalKey);
               return true;
             });
           }

@@ -25,7 +25,12 @@ TRENDING_PRESETS = {
     "punjabi": "Top Punjabi Hits 2026",
     "english": "Billboard Hot 100 English Hits",
     "romantic": "Romantic Hindi Love Songs",
-    "lofi": "Hindi Lofi Midnight Chill",
+    "lofi": "Bollywood Lofi",
+    "lofi_midnight": "Lofi Midnight",
+    "lofi_bollywood": "Bollywood Lofi",
+    "lofi_punjabi": "Punjabi Lofi",
+    "lofi_chillhop": "Chillhop",
+    "lofi_rain": "Lofi Sleep Rain",
     "party": "Party Hindi Dance Bangers",
     "haryanvi": "Top Haryanvi Songs",
     "bhojpuri": "Top Bhojpuri Songs",
@@ -81,6 +86,9 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
     elif 'bhojpuri' in q_lower:
         query = "Top Bhojpuri Songs"
         q_lower = "bhojpuri"
+    elif q_lower in ['lofi', 'lo-fi', 'lofi midnight', 'lofi_midnight']:
+        query = "Bollywood Lofi"
+        q_lower = "lofi"
     elif q_lower in TRENDING_PRESETS:
         query = TRENDING_PRESETS[q_lower]
         
@@ -90,15 +98,25 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
     seen_titles = set()
     seen_images = set()
     
-    # Massive Library Expansion: fetch multiple pages (e.g. p=1 and p=2) to get 80-100+ raw tracks
-    pages_to_fetch = [page]
-    if fetch_depth > 1:
-        pages_to_fetch.append(page + 1)
-        if q_lower in ['home', 'punjabi', 'hindi', 'bhangra']:
-            pages_to_fetch.append(page + 2)
+    # Massive Library Expansion: fetch multiple pages/sources to get 80-100+ raw tracks
+    if q_lower == 'lofi' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=40&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Bollywood Lofi')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Lofi Midnight')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi Lofi')}",
+        ]
+    else:
+        pages_to_fetch = [page]
+        if fetch_depth > 1:
+            pages_to_fetch.append(page + 1)
+            if q_lower in ['home', 'punjabi', 'hindi', 'bhangra']:
+                pages_to_fetch.append(page + 2)
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=50&p={p_num}&_marker=0&ctx=android&q={encoded_query}"
+            for p_num in pages_to_fetch
+        ]
             
-    for p_num in pages_to_fetch:
-        url = f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=50&p={p_num}&_marker=0&ctx=android&q={encoded_query}"
+    for url in query_urls:
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
         
         try:
@@ -130,7 +148,7 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
                         'dukh bhanjani', 'asa di war', 'asa di vaar', 'dhadrianwale', 'dhadrianwala', 'diwan', 'katha'
                     ]):
                         max_dur = 18000 # 5 Hours (Never cut off full Gurbani Baanis or Sehaj Path!)
-                    elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing']):
+                    elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing', 'lofi', 'lo-fi', 'chillhop']):
                         max_dur = 3600
                     else:
                         max_dur = 900 # 15 minutes for general songs
@@ -145,8 +163,13 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
     
                     # Deduplication by normalized base title
                     base_title = re.sub(r'\(.*?\)|\[.*?\]', '', raw_title).lower()
-                    base_title = re.sub(r'\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b', '', base_title)
+                    if 'lofi' not in q_lower and 'chill' not in q_lower:
+                        base_title = re.sub(r'\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b', '', base_title)
+                    else:
+                        base_title = re.sub(r'\b(trending version|trending|ringtune|ringtone|version|full song|audio|official|video|song)\b', '', base_title)
                     base_title = re.sub(r'[^a-z0-9]', '', base_title).strip()
+                    if not base_title:
+                        base_title = re.sub(r'[^a-z0-9]', '', raw_title.lower()).strip()
     
                     if not base_title or base_title in seen_titles:
                         continue
