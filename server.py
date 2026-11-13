@@ -24,7 +24,8 @@ TRENDING_PRESETS = {
     "romantic": "Romantic Hindi",
     "lofi": "Hindi Lofi",
     "party": "Party Hindi",
-    "haryanvi": "Top Haryanvi"
+    "haryanvi": "Top Haryanvi",
+    "gurbani": "Shabad Gurbani Kirtan"
 }
 
 def decrypt_url(enc_url):
@@ -76,9 +77,10 @@ def search_jiosaavn(query, count=45):
                 if any(bad in title_lower for bad in bad_keywords):
                     continue
                 
-                # Duration filter: Skip short clips (< 45s) and tracks longer than 10 minutes (> 600s)
+                # Duration filter: Skip short clips (< 45s) and tracks longer than 10 mins (or 40 mins for Gurbani)
                 duration = int(r.get('duration', 0)) if r.get('duration') else 0
-                if duration < 45 or duration > 600:
+                max_dur = 2400 if any(k in q_lower for k in ['gurbani', 'shabad', 'kirtan', 'simran', 'nitnem', 'waheguru']) else 600
+                if duration < 45 or duration > max_dur:
                     continue
                 
                 # Clean display title (strip "Trending Version" marketing tags)

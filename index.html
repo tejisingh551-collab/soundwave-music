@@ -286,6 +286,18 @@
       box-shadow: 0 2px 8px var(--accent-glow);
     }
 
+    .badge-sikh {
+      margin-left: auto;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 0.15rem 0.5rem;
+      border-radius: 10px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    }
+
     .badge-count {
       margin-left: auto;
       background: rgba(255, 255, 255, 0.1);
@@ -1375,6 +1387,11 @@
         <!-- Genres & Charts -->
         <div class="nav-section-title">Genres & Charts</div>
         <div class="nav-group">
+          <div class="nav-item" id="nav-gurbani" onclick="navSelect('gurbani', 'ੴ Punjabi Shabad Gurbani', this)">
+            <i class="fa-solid fa-hands-praying" style="color: #f59e0b;"></i>
+            <span>Gurbani</span>
+            <span class="badge-sikh">ੴ Pure</span>
+          </div>
           <div class="nav-item" id="nav-hindi" onclick="navSelect('hindi', '🇮🇳 Hindi Top 50 Chartbusters', this)">
             <i class="fa-solid fa-music"></i>
             <span>Hindi Top 50</span>
@@ -1654,7 +1671,11 @@
 
       activeKey = key;
       hubTitle.textContent = displayName;
-      hubSubtitle.textContent = 'Clean Tracklist • 320kbps HD Audio • Live Cloud Stream';
+      if (key === 'gurbani') {
+        hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
+      } else {
+        hubSubtitle.textContent = 'Clean Tracklist • 320kbps HD Audio • Live Cloud Stream';
+      }
 
       searchInput.value = '';
       updateClearBtn();
@@ -1833,13 +1854,16 @@
         if (res.ok) {
           const json = await res.json();
           if (json.results && json.results.length > 0) {
-            // Client-side safety filter: remove duplicates and ringtunes (> 10 mins)
+            // Client-side safety filter: remove duplicates and ringtunes (> 10 mins, or 40 mins for Gurbani)
             const seenTitles = new Set();
+            const qLower = (query || '').toLowerCase();
+            const isGurbani = qLower.includes('gurbani') || qLower.includes('shabad') || qLower.includes('kirtan') || qLower.includes('simran') || qLower.includes('nitnem') || qLower.includes('waheguru');
+            const maxDur = isGurbani ? 2400 : 600;
             results = json.results.filter(s => {
               if (!s || !s.name) return false;
               const dur = parseInt(s.duration || 0);
-              // Filter out short previews (< 45s) and compilation ringtunes > 10 mins (600s)
-              if (dur < 45 || dur > 600) return false;
+              // Filter out short previews (< 45s) and compilation ringtunes
+              if (dur < 45 || dur > maxDur) return false;
 
               const lower = s.name.toLowerCase();
               if (lower.includes('ringtone') || lower.includes('ringtune') || lower.includes('caller tune')) {
