@@ -23,6 +23,11 @@ TRENDING_PRESETS = {
     "new": "Latest New Releases 2026",
     "hindi": "Top Hindi Songs Bollywood Chartbusters",
     "punjabi": "Top Punjabi Hits 2026",
+    "punjabi_dj": "Punjabi DJ Remix",
+    "punjabi_bass": "Punjabi Bass Boosted",
+    "punjabi_dhol": "Punjabi Dhol Mix",
+    "punjabi_mashup": "Punjabi Mashup",
+    "punjabi_club": "Punjabi Club Mix",
     "english": "Billboard Hot 100 English Hits",
     "romantic": "Romantic Hindi Love Songs",
     "lofi": "Bollywood Lofi",
@@ -89,6 +94,9 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
     elif q_lower in ['lofi', 'lo-fi', 'lofi midnight', 'lofi_midnight']:
         query = "Bollywood Lofi"
         q_lower = "lofi"
+    elif q_lower in ['punjabi_dj', 'punjabi dj', 'punjabi dj remix', 'punjabi remix', 'dj punjabi', 'dj punjabi remix']:
+        query = "Punjabi DJ Remix"
+        q_lower = "punjabi_dj"
     elif q_lower in TRENDING_PRESETS:
         query = TRENDING_PRESETS[q_lower]
         
@@ -104,6 +112,13 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=40&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Bollywood Lofi')}",
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Lofi Midnight')}",
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi Lofi')}",
+        ]
+    elif q_lower == 'punjabi_dj' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi DJ Remix')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi Bass Boosted')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi Dhol Mix')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi Mashup')}",
         ]
     else:
         pages_to_fetch = [page]
@@ -148,7 +163,7 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
                         'dukh bhanjani', 'asa di war', 'asa di vaar', 'dhadrianwale', 'dhadrianwala', 'diwan', 'katha'
                     ]):
                         max_dur = 18000 # 5 Hours (Never cut off full Gurbani Baanis or Sehaj Path!)
-                    elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing', 'lofi', 'lo-fi', 'chillhop']):
+                    elif any(k in q_lower for k in ['sleep', 'sleeping', 'ambient', 'meditation', 'relaxing', 'lofi', 'lo-fi', 'chillhop', 'dj', 'remix', 'mashup', 'bass']):
                         max_dur = 3600
                     else:
                         max_dur = 900 # 15 minutes for general songs
@@ -163,7 +178,8 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
     
                     # Deduplication by normalized base title
                     base_title = re.sub(r'\(.*?\)|\[.*?\]', '', raw_title).lower()
-                    if 'lofi' not in q_lower and 'chill' not in q_lower:
+                    is_special = any(k in q_lower for k in ['lofi', 'chill', 'dj', 'remix', 'mashup', 'bass'])
+                    if not is_special:
                         base_title = re.sub(r'\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b', '', base_title)
                     else:
                         base_title = re.sub(r'\b(trending version|trending|ringtune|ringtone|version|full song|audio|official|video|song)\b', '', base_title)

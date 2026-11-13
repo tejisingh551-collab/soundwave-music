@@ -2137,6 +2137,11 @@
             <i class="fa-solid fa-fire"></i>
             <span>Punjabi Hits</span>
           </div>
+          <div class="nav-item" id="nav-punjabi-dj" onclick="navSelect('punjabi_dj', '🔥 Punjabi DJ Remix Collection', this)">
+            <i class="fa-solid fa-compact-disc" style="color: #ec4899;"></i>
+            <span>DJ Punjabi Remix</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">Bass</span>
+          </div>
           <div class="nav-item" id="nav-hindi" onclick="navSelect('hindi', '🇮🇳 Hindi Top 50 Chartbusters', this)">
             <i class="fa-solid fa-music"></i>
             <span>Hindi Top 50</span>
@@ -2282,6 +2287,21 @@
           <button class="year-chip" onclick="selectLofiFilter('punjabi', this)">🌾 Punjabi Lo-Fi</button>
           <button class="year-chip" onclick="selectLofiFilter('chillhop', this)">🎧 Chillhop & Study</button>
           <button class="year-chip" onclick="selectLofiFilter('rain', this)">🌧️ Rain & Relax</button>
+        </div>
+      </div>
+
+      <!-- DJ Punjabi Remix Filter Bar -->
+      <div class="year-filter-bar" id="djFilterBar" style="display: none; border-color: rgba(236, 72, 153, 0.35); background: linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(244, 63, 94, 0.08) 100%);">
+        <div class="year-filter-header">
+          <span class="year-filter-title" style="color: #f472b6;"><i class="fa-solid fa-compact-disc"></i> Punjabi DJ Remix Vibes:</span>
+          <span class="year-filter-desc">High Bass Drop, Wedding Dhol Mix, Non-Stop Party Mashup & Car Bass</span>
+        </div>
+        <div class="year-chips-wrap">
+          <button class="year-chip active" onclick="selectDjFilter('all', this)" style="border-color: rgba(236, 72, 153, 0.6);">🔥 All DJ Remix</button>
+          <button class="year-chip" onclick="selectDjFilter('bass', this)">🚗 Bass Boosted / Car</button>
+          <button class="year-chip" onclick="selectDjFilter('dhol', this)">🥁 Wedding Dhol Mix</button>
+          <button class="year-chip" onclick="selectDjFilter('mashup', this)">⚡ Party Mashup</button>
+          <button class="year-chip" onclick="selectDjFilter('club', this)">💥 Club & EDM Remix</button>
         </div>
       </div>
 
@@ -3017,6 +3037,8 @@
       if (afb) afb.style.display = 'none';
       const lfb = document.getElementById('lofiFilterBar');
       if (lfb) lfb.style.display = 'none';
+      const djb = document.getElementById('djFilterBar');
+      if (djb) djb.style.display = 'none';
       const lmc = document.getElementById('loadMoreContainer');
       if (lmc) lmc.style.display = 'none';
 
@@ -3341,28 +3363,40 @@
       const yfb = document.getElementById('yearFilterBar');
       const afb = document.getElementById('angFilterBar');
       const lfb = document.getElementById('lofiFilterBar');
+      const djb = document.getElementById('djFilterBar');
       if (key === 'bhangra') {
         if (yfb) yfb.style.display = 'flex';
         if (afb) afb.style.display = 'none';
         if (lfb) lfb.style.display = 'none';
+        if (djb) djb.style.display = 'none';
         hubSubtitle.textContent = '🥁 High-Energy Punjabi Dhol & Bhangra • Filter By Year • 320kbps HD';
         document.querySelectorAll('#yearFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else if (key === 'sehaj_path') {
         if (yfb) yfb.style.display = 'none';
         if (afb) afb.style.display = 'flex';
         if (lfb) lfb.style.display = 'none';
+        if (djb) djb.style.display = 'none';
         hubSubtitle.textContent = 'ੴ Sri Guru Granth Sahib Ji Sampooran Sehaj Path (Ang 1 to 1430) • Full Episodes';
         document.querySelectorAll('#angFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else if (key === 'lofi') {
         if (yfb) yfb.style.display = 'none';
         if (afb) afb.style.display = 'none';
         if (lfb) lfb.style.display = 'flex';
+        if (djb) djb.style.display = 'none';
         hubSubtitle.textContent = '☕ Midnight Aesthetic Lo-Fi, Bollywood Flips & Rainy Night Beats • 320kbps HD';
         document.querySelectorAll('#lofiFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
+      } else if (key === 'punjabi_dj') {
+        if (yfb) yfb.style.display = 'none';
+        if (afb) afb.style.display = 'none';
+        if (lfb) lfb.style.display = 'none';
+        if (djb) djb.style.display = 'flex';
+        hubSubtitle.textContent = '🔥 High-Bass Punjabi DJ Remixes, Dhol Mixes & Club Bangers • 320kbps HD';
+        document.querySelectorAll('#djFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else {
         if (yfb) yfb.style.display = 'none';
         if (afb) afb.style.display = 'none';
         if (lfb) lfb.style.display = 'none';
+        if (djb) djb.style.display = 'none';
         if (key === 'gurbani') {
           hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
         } else if (key === 'sehaj_path') {
@@ -3489,6 +3523,38 @@
       fetchSongs(target.q, 1, false);
     }
 
+    // Punjabi DJ Remix Filter Handler
+    function selectDjFilter(filterKey, elem) {
+      const bar = document.getElementById('djFilterBar');
+      if (bar) {
+        bar.querySelectorAll('.year-chip').forEach(c => {
+          c.classList.remove('active');
+          c.style.borderColor = '';
+        });
+      }
+      if (elem) {
+        elem.classList.add('active');
+        elem.style.borderColor = 'rgba(236, 72, 153, 0.8)';
+      }
+
+      const hubTitle = document.getElementById('hubTitle');
+      const hubSubtitle = document.getElementById('hubSubtitle');
+      currentPage = 1;
+
+      const djMap = {
+        'all': { q: 'punjabi_dj', title: '🔥 Punjabi DJ Remix Collection', sub: 'High-Bass Punjabi DJ Remixes, Dhol Mixes & Club Bangers • 320kbps HD' },
+        'bass': { q: 'punjabi_bass', title: '🚗 Punjabi Bass Boosted & Car Mixes', sub: 'Ultra Heavy Subwoofer Bass & Car Audio Tested Remixes • 320kbps HD' },
+        'dhol': { q: 'punjabi_dhol', title: '🥁 Punjabi Wedding Dhol & Bhangra Remixes', sub: 'Live Dhol Beats, Wedding Party Dhamaka & Folk Remixes • 320kbps HD' },
+        'mashup': { q: 'punjabi_mashup', title: '⚡ Non-Stop Punjabi Party Mashups', sub: 'Sidhu Moose Wala, Diljit, Karan Aujla & AP Dhillon Mega Mashups' },
+        'club': { q: 'punjabi_club', title: '💥 Punjabi Club & EDM Remixes', sub: 'High-Energy EDM Drops, Club Night Bangers & DJ Festival Sets' }
+      };
+
+      const target = djMap[filterKey] || djMap['all'];
+      if (hubTitle) hubTitle.textContent = target.title;
+      if (hubSubtitle) hubSubtitle.textContent = target.sub;
+      fetchSongs(target.q, 1, false);
+    }
+
     // Switch to Favorites View with Clean Empty State
     function switchTab(tab, elem) {
       activeCustomPlaylistId = null;
@@ -3504,6 +3570,8 @@
       if (afb) afb.style.display = 'none';
       const lfb = document.getElementById('lofiFilterBar');
       if (lfb) lfb.style.display = 'none';
+      const djb = document.getElementById('djFilterBar');
+      if (djb) djb.style.display = 'none';
       const lmc = document.getElementById('loadMoreContainer');
       if (lmc) lmc.style.display = 'none';
 
@@ -3531,6 +3599,7 @@
       new: '✨ New Releases 2026',
       hindi: '🇮🇳 Hindi Top 50 Chartbusters',
       punjabi: '🌾 Punjabi Hits 2026',
+      punjabi_dj: '🔥 Punjabi DJ Remix Collection',
       english: '🌍 English Pop Hits',
       romantic: '❤️ Romantic Melodies',
       lofi: '☕ Lo-Fi Midnight Chill',
@@ -3707,10 +3776,11 @@
             const isDevotional = ['sehaj', 'paath', 'path', 'sukhmani', 'nitnem', 'gurbani', 'shabad', 'kirtan', 'simran', 'waheguru', 'japji', 'jaap', 'chaupai', 'rehras', 'sohila', 'dukh bhanjani', 'asa di war', 'asa di vaar', 'dhadrianwale', 'dhadrianwala', 'diwan', 'katha'].some(k => qLower.includes(k));
             const isSleep = qLower.includes('sleep') || qLower.includes('sleeping') || qLower.includes('ambient') || qLower.includes('meditation') || qLower.includes('relaxing');
             const isLofi = qLower.includes('lofi') || qLower.includes('lo-fi') || qLower.includes('chillhop');
+            const isDj = qLower.includes('dj') || qLower.includes('remix') || qLower.includes('mashup') || qLower.includes('bass') || qLower.includes('club');
 
             let maxDur = 900;
             if (isDevotional) maxDur = 18000; // 5 hours - Full paths never cut!
-            else if (isSleep || isLofi) maxDur = 3600;
+            else if (isSleep || isLofi || isDj) maxDur = 3600;
 
             results = json.results.filter(s => {
               if (!s || !s.name) return false;
@@ -3722,8 +3792,9 @@
                 return false;
               }
 
+              const preserveTags = isLofi || isDj;
               const base = s.name.replace(/\(.*?\)|\[.*?\]/g, '')
-                .replace(isLofi ? /\b(trending version|trending|ringtune|ringtone|version|full song|audio|official|video|song)\b/gi : /\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b/gi, '')
+                .replace(preserveTags ? /\b(trending version|trending|ringtune|ringtone|version|full song|audio|official|video|song)\b/gi : /\b(trending version|trending|ringtune|ringtone|remix|lofi|slowed|reverb|version|full song|audio|official|video|song)\b/gi, '')
                 .replace(/[^a-zA-Z0-9]/g, '')
                 .toLowerCase()
                 .trim();
