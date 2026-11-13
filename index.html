@@ -2142,9 +2142,10 @@
             <span>DJ Punjabi Remix</span>
             <span class="badge-pill" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">Bass</span>
           </div>
-          <div class="nav-item" id="nav-hindi" onclick="navSelect('hindi', '🇮🇳 Hindi Top 50 Chartbusters', this)">
-            <i class="fa-solid fa-music"></i>
-            <span>Hindi Top 50</span>
+          <div class="nav-item" id="nav-hindi" onclick="navSelect('hindi', '🇮🇳 Bollywood & Hindi Eras', this)">
+            <i class="fa-solid fa-film" style="color: #fbbf24;"></i>
+            <span>Hindi & Bollywood</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">Year-Wise</span>
           </div>
           <div class="nav-item" id="nav-romantic" onclick="navSelect('romantic', '❤️ Romantic Melodies', this)">
             <i class="fa-solid fa-heart-pulse"></i>
@@ -2302,6 +2303,24 @@
           <button class="year-chip" onclick="selectDjFilter('dhol', this)">🥁 Wedding Dhol Mix</button>
           <button class="year-chip" onclick="selectDjFilter('mashup', this)">⚡ Party Mashup</button>
           <button class="year-chip" onclick="selectDjFilter('club', this)">💥 Club & EDM Remix</button>
+        </div>
+      </div>
+
+      <!-- Hindi Era & Year-Wise Filter Bar -->
+      <div class="year-filter-bar" id="hindiFilterBar" style="display: none; border-color: rgba(245, 158, 11, 0.35); background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(239, 68, 68, 0.08) 100%);">
+        <div class="year-filter-header">
+          <span class="year-filter-title" style="color: #fbbf24;"><i class="fa-solid fa-clock-rotate-left"></i> Bollywood Through Eras:</span>
+          <span class="year-filter-desc">Click any era to stream iconic Hindi songs from 60s, 70s, 80s, 90s, 2000s to 2026</span>
+        </div>
+        <div class="year-chips-wrap">
+          <button class="year-chip active" onclick="selectHindiEra('mix', this)" style="border-color: rgba(245, 158, 11, 0.6);">🔀 All Hindi Mix</button>
+          <button class="year-chip" onclick="selectHindiEra('2026', this)">✨ 2026 Latest Hits</button>
+          <button class="year-chip" onclick="selectHindiEra('2010s', this)">🎸 2010s Blockbusters</button>
+          <button class="year-chip" onclick="selectHindiEra('2000s', this)">💿 2000s Melodies (KK & Atif)</button>
+          <button class="year-chip" onclick="selectHindiEra('90s', this)">🎶 90s Golden Hits</button>
+          <button class="year-chip" onclick="selectHindiEra('80s', this)">📼 80s Retro Hits</button>
+          <button class="year-chip" onclick="selectHindiEra('70s', this)">📻 70s RD & Kishore</button>
+          <button class="year-chip" onclick="selectHindiEra('classic', this)">🎙️ Golden Classics (Rafi & Lata)</button>
         </div>
       </div>
 
@@ -3039,6 +3058,8 @@
       if (lfb) lfb.style.display = 'none';
       const djb = document.getElementById('djFilterBar');
       if (djb) djb.style.display = 'none';
+      const hfb = document.getElementById('hindiFilterBar');
+      if (hfb) hfb.style.display = 'none';
       const lmc = document.getElementById('loadMoreContainer');
       if (lmc) lmc.style.display = 'none';
 
@@ -3364,11 +3385,13 @@
       const afb = document.getElementById('angFilterBar');
       const lfb = document.getElementById('lofiFilterBar');
       const djb = document.getElementById('djFilterBar');
+      const hfb = document.getElementById('hindiFilterBar');
       if (key === 'bhangra') {
         if (yfb) yfb.style.display = 'flex';
         if (afb) afb.style.display = 'none';
         if (lfb) lfb.style.display = 'none';
         if (djb) djb.style.display = 'none';
+        if (hfb) hfb.style.display = 'none';
         hubSubtitle.textContent = '🥁 High-Energy Punjabi Dhol & Bhangra • Filter By Year • 320kbps HD';
         document.querySelectorAll('#yearFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else if (key === 'sehaj_path') {
@@ -3376,6 +3399,7 @@
         if (afb) afb.style.display = 'flex';
         if (lfb) lfb.style.display = 'none';
         if (djb) djb.style.display = 'none';
+        if (hfb) hfb.style.display = 'none';
         hubSubtitle.textContent = 'ੴ Sri Guru Granth Sahib Ji Sampooran Sehaj Path (Ang 1 to 1430) • Full Episodes';
         document.querySelectorAll('#angFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else if (key === 'lofi') {
@@ -3383,6 +3407,7 @@
         if (afb) afb.style.display = 'none';
         if (lfb) lfb.style.display = 'flex';
         if (djb) djb.style.display = 'none';
+        if (hfb) hfb.style.display = 'none';
         hubSubtitle.textContent = '☕ Midnight Aesthetic Lo-Fi, Bollywood Flips & Rainy Night Beats • 320kbps HD';
         document.querySelectorAll('#lofiFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else if (key === 'punjabi_dj') {
@@ -3390,13 +3415,23 @@
         if (afb) afb.style.display = 'none';
         if (lfb) lfb.style.display = 'none';
         if (djb) djb.style.display = 'flex';
+        if (hfb) hfb.style.display = 'none';
         hubSubtitle.textContent = '🔥 High-Bass Punjabi DJ Remixes, Dhol Mixes & Club Bangers • 320kbps HD';
         document.querySelectorAll('#djFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
+      } else if (key === 'hindi') {
+        if (yfb) yfb.style.display = 'none';
+        if (afb) afb.style.display = 'none';
+        if (lfb) lfb.style.display = 'none';
+        if (djb) djb.style.display = 'none';
+        if (hfb) hfb.style.display = 'flex';
+        hubSubtitle.textContent = '🇮🇳 Bollywood Through The Eras • Filter by Year (Classic 60s, 70s, 80s, 90s, 2000s, Mix) • 320kbps HD';
+        document.querySelectorAll('#hindiFilterBar .year-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
       } else {
         if (yfb) yfb.style.display = 'none';
         if (afb) afb.style.display = 'none';
         if (lfb) lfb.style.display = 'none';
         if (djb) djb.style.display = 'none';
+        if (hfb) hfb.style.display = 'none';
         if (key === 'gurbani') {
           hubSubtitle.textContent = 'ੴ Amrit Vela Nitnem & Shabad Kirtan • 320kbps Pure Devotional Stream';
         } else if (key === 'sehaj_path') {
@@ -3425,7 +3460,8 @@
       if (bd) bd.classList.remove('open');
 
       currentPage = 1;
-      fetchSongs(key, 1, false);
+      const targetFetch = (key === 'hindi') ? 'hindi_mix' : key;
+      fetchSongs(targetFetch, 1, false);
     }
 
     // Bhangra Year-Wise Selection Handler
@@ -3555,6 +3591,41 @@
       fetchSongs(target.q, 1, false);
     }
 
+    // Hindi Era & Year-Wise Filter Handler
+    function selectHindiEra(eraKey, elem) {
+      const bar = document.getElementById('hindiFilterBar');
+      if (bar) {
+        bar.querySelectorAll('.year-chip').forEach(c => {
+          c.classList.remove('active');
+          c.style.borderColor = '';
+        });
+      }
+      if (elem) {
+        elem.classList.add('active');
+        elem.style.borderColor = 'rgba(245, 158, 11, 0.8)';
+      }
+
+      const hubTitle = document.getElementById('hubTitle');
+      const hubSubtitle = document.getElementById('hubSubtitle');
+      currentPage = 1;
+
+      const eraMap = {
+        'mix': { q: 'hindi_mix', title: '🔀 Bollywood Hindi All-Era Mix', sub: 'Timeless Hindi Classics, 90s Romance & Modern Blockbusters Combined • 320kbps HD' },
+        '2026': { q: 'hindi_2026', title: '✨ Latest Bollywood Hits 2026', sub: 'Top Bollywood Chartbusters, New Movie Songs & Viral Anthems • 320kbps HD' },
+        '2010s': { q: 'hindi_2010s', title: '🎸 2010s Bollywood Blockbusters', sub: 'Arijit Singh, Pritam, Mohit Chauhan, Badshah & Yo Yo Honey Singh Era' },
+        '2000s': { q: 'hindi_2000s', title: '💿 2000s Bollywood Nostalgia', sub: 'KK, Atif Aslam, Shreya Ghoshal, Himesh Reshammiya & Emraan Hashmi Melodies' },
+        '90s': { q: 'hindi_90s', title: '🎶 90s Golden Era Bollywood Hits', sub: 'Kumar Sanu, Alka Yagnik, Udit Narayan & Nadeem-Shravan Romantic Anthems' },
+        '80s': { q: 'hindi_80s', title: '📼 80s Retro Bollywood Melodies', sub: 'Bappi Lahiri, Asha Bhosle, Kishore Kumar & 80s Disco & Love Songs' },
+        '70s': { q: 'hindi_70s', title: '📻 70s Kishore, RD Burman & Rafi', sub: 'Evergreen Melodies of RD Burman, Kishore Kumar, Lata & Mohammed Rafi' },
+        'classic': { q: 'hindi_classic', title: '🎙️ Golden Classics (50s & 60s)', sub: 'Mukesh, Mohammed Rafi, Lata Mangeshkar & Manna Dey Vintage Classics' }
+      };
+
+      const target = eraMap[eraKey] || eraMap['mix'];
+      if (hubTitle) hubTitle.textContent = target.title;
+      if (hubSubtitle) hubSubtitle.textContent = target.sub;
+      fetchSongs(target.q, 1, false);
+    }
+
     // Switch to Favorites View with Clean Empty State
     function switchTab(tab, elem) {
       activeCustomPlaylistId = null;
@@ -3572,6 +3643,8 @@
       if (lfb) lfb.style.display = 'none';
       const djb = document.getElementById('djFilterBar');
       if (djb) djb.style.display = 'none';
+      const hfb = document.getElementById('hindiFilterBar');
+      if (hfb) hfb.style.display = 'none';
       const lmc = document.getElementById('loadMoreContainer');
       if (lmc) lmc.style.display = 'none';
 
@@ -3597,7 +3670,15 @@
     const CATEGORY_TITLES = {
       home: '🏠 Home Trending Hits 2026',
       new: '✨ New Releases 2026',
-      hindi: '🇮🇳 Hindi Top 50 Chartbusters',
+      hindi: '🇮🇳 Bollywood & Hindi Eras',
+      hindi_mix: '🔀 Bollywood Hindi All-Era Mix',
+      hindi_2026: '✨ Latest Bollywood Hits 2026',
+      hindi_2010s: '🎸 2010s Bollywood Blockbusters',
+      hindi_2000s: '💿 2000s Bollywood Nostalgia',
+      hindi_90s: '🎶 90s Golden Era Bollywood Hits',
+      hindi_80s: '📼 80s Retro Bollywood Melodies',
+      hindi_70s: '📻 70s Kishore, RD Burman & Rafi',
+      hindi_classic: '🎙️ Golden Classics (50s & 60s)',
       punjabi: '🌾 Punjabi Hits 2026',
       punjabi_dj: '🔥 Punjabi DJ Remix Collection',
       english: '🌍 English Pop Hits',

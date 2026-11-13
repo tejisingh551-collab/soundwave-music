@@ -22,6 +22,14 @@ TRENDING_PRESETS = {
     "home": "Latest Hindi Songs 2026 Hits",
     "new": "Latest New Releases 2026",
     "hindi": "Top Hindi Songs Bollywood Chartbusters",
+    "hindi_mix": "Bollywood Evergreen Hits",
+    "hindi_2026": "Best Hindi Songs",
+    "hindi_2010s": "2010s Bollywood Hits Arijit Singh",
+    "hindi_2000s": "2000s Hindi Hits",
+    "hindi_90s": "90s Hindi Hits",
+    "hindi_80s": "80s Hindi Hits",
+    "hindi_70s": "70s Hindi Hits",
+    "hindi_classic": "Classic Old Hindi Songs",
     "punjabi": "Top Punjabi Hits 2026",
     "punjabi_dj": "Punjabi DJ Remix",
     "punjabi_bass": "Punjabi Bass Boosted",
@@ -120,11 +128,37 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi Dhol Mix')}",
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Punjabi Mashup')}",
         ]
+    elif q_lower in ['hindi', 'hindi_mix'] and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Bollywood Evergreen Hits')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Best Hindi Songs')}",
+        ]
+    elif q_lower == 'hindi_90s' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('90s Hindi Hits')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Kumar Sanu Romantic Hits')}",
+        ]
+    elif q_lower == 'hindi_80s' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('80s Hindi Hits')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('80s Bollywood Songs')}",
+        ]
+    elif q_lower == 'hindi_70s' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('70s Hindi Hits')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Kishore Kumar Hits')}",
+        ]
+    elif q_lower == 'hindi_classic' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Classic Old Hindi Songs')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Mukesh Golden Hits')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Lata Mangeshkar Evergreen Hits')}",
+        ]
     else:
         pages_to_fetch = [page]
         if fetch_depth > 1:
             pages_to_fetch.append(page + 1)
-            if q_lower in ['home', 'punjabi', 'hindi', 'bhangra']:
+            if q_lower in ['home', 'punjabi', 'hindi', 'bhangra', 'hindi_mix', 'hindi_90s', 'hindi_80s', 'hindi_70s', 'hindi_2000s', 'hindi_2010s', 'hindi_2026', 'hindi_classic']:
                 pages_to_fetch.append(page + 2)
         query_urls = [
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=50&p={p_num}&_marker=0&ctx=android&q={encoded_query}"
