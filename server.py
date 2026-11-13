@@ -9,7 +9,10 @@ from pyDes import des, ECB, PAD_PKCS5
 
 PORT = int(os.environ.get('PORT', 8080))
 DIRECTORY = os.path.dirname(os.path.abspath(__file__))
-os.chdir(DIRECTORY)
+try:
+    os.chdir(DIRECTORY)
+except Exception:
+    pass
 
 DES_KEY = b"38346591"
 CIPHER = des(DES_KEY, ECB, b"\0\0\0\0\0\0\0\0", pad=None, padmode=PAD_PKCS5)
@@ -27,7 +30,7 @@ TRENDING_PRESETS = {
     "haryanvi": "Top Haryanvi",
     "gurbani": "Shabad Gurbani Kirtan",
     "dhadrianwale": "Bhai Ranjit Singh Ji Dhadrianwale",
-    "sleeping": "Sleeping Music",
+    "sleeping": "Relaxing Sleep",
     "bhangra": "Top Punjabi Bhangra Hits",
     "bhangra_2025": "Latest Punjabi Bhangra Songs 2025",
     "bhangra_2024": "Punjabi Bhangra Songs 2024",
@@ -166,6 +169,32 @@ class MusicAppHandler(SimpleHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(body)
+        elif parsed.path == '/sw.js':
+            try:
+                file_path = os.path.join(DIRECTORY, 'sw.js')
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/javascript')
+                self.send_header('Service-Worker-Allowed', '/')
+                self.send_header('Cache-Control', 'no-cache')
+                self.send_header('Content-Length', str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+            except Exception as e:
+                self.send_error(404, "File not found")
+        elif parsed.path == '/manifest.json':
+            try:
+                file_path = os.path.join(DIRECTORY, 'manifest.json')
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/manifest+json')
+                self.send_header('Content-Length', str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+            except Exception as e:
+                self.send_error(404, "File not found")
         else:
             super().do_GET()
 

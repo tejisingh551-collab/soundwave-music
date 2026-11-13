@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="TejiMusic" />
   <meta name="theme-color" content="#0A0E1A" />
+  <link rel="manifest" href="/manifest.json" />
   <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=180&h=180&fit=crop" />
 
   <!-- Google Fonts & FontAwesome -->
@@ -663,6 +664,30 @@
 
     .btn-play-all:active {
       transform: scale(0.97);
+    }
+
+    /* Install APK Button */
+    .btn-install-apk {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+      transition: all 0.22s ease;
+      font-family: inherit;
+    }
+
+    .btn-install-apk:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 22px rgba(16, 185, 129, 0.5);
     }
 
     .banner-tag {
@@ -1493,6 +1518,11 @@
             <span>My Favorites</span>
             <span class="badge-count" id="favCountBadge">0</span>
           </div>
+          <div class="nav-item" id="nav-install" onclick="triggerAppInstall()">
+            <i class="fa-brands fa-android" style="color:#10b981;"></i>
+            <span>Install App</span>
+            <span class="badge-pill" style="background:linear-gradient(135deg, #10b981, #059669);">APK</span>
+          </div>
         </div>
 
         <!-- Devotional & Spiritual -->
@@ -1602,6 +1632,10 @@
           <button class="btn-play-all" onclick="playAllSongs()" title="Play All Tracks">
             <i class="fa-solid fa-play"></i>
             <span>Play All</span>
+          </button>
+          <button class="btn-install-apk" id="installApkBtn" onclick="triggerAppInstall()" title="Install Android App / APK">
+            <i class="fa-brands fa-android"></i>
+            <span>Install APK</span>
           </button>
           <div class="banner-tag">
             <i class="fa-solid fa-circle live-dot"></i>
@@ -2490,6 +2524,45 @@
         fetchSongs(val);
       }, 400);
     });
+
+    // PWA & Android APK Installation Handling
+    let deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      const navBtn = document.getElementById('nav-install');
+      if (navBtn) navBtn.style.display = 'flex';
+      const apkBtn = document.getElementById('installApkBtn');
+      if (apkBtn) apkBtn.style.display = 'inline-flex';
+    });
+
+    function triggerAppInstall() {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choice) => {
+          if (choice.outcome === 'accepted') {
+            showToast('TejiMusic Android App installed! 🎉', 3000);
+          }
+          deferredInstallPrompt = null;
+        });
+      } else {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          showToast('📱 iPhone: Safari Share (⬆) button dabayein aur "Add to Home Screen" choose karein!', 4000);
+        } else {
+          showToast('🤖 Android: Chrome menu (⋮) -> "Install app" select karein, direct APK install ho jayegi!', 4000);
+        }
+      }
+    }
+
+    // Register Service Worker for PWA / WebAPK support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.log('SW note:', err);
+        });
+      });
+    }
 
     // Default Load: Home
     fetchSongs('home');
