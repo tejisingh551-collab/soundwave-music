@@ -54,6 +54,12 @@ TRENDING_PRESETS = {
     "dhadrianwale": "Bhai Ranjit Singh Ji Dhadrianwale",
     "japji_sartaj": "Satinder Sartaaj Japji Sahib",
     "funk": "Top Funk Hits",
+    "albums": "New Punjabi Albums",
+    "album_punjabi": "New Punjabi Albums 2026",
+    "album_hindi": "New Hindi Movie Albums 2026",
+    "album_haryanvi": "Latest Haryanvi Albums 2026",
+    "album_bhojpuri": "New Bhojpuri Albums 2026",
+    "album_english": "Billboard Top Albums 2026",
     "bhangra": "Top Punjabi Bhangra Hits",
     "bhangra_2025": "Latest Punjabi Bhangra Songs 2025",
     "bhangra_2024": "Punjabi Bhangra Songs 2024",
@@ -160,11 +166,40 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Brazilian Phonk Funk')}",
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Funk Groove Disco')}",
         ]
+    elif q_lower in ['albums', 'album_punjabi'] and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('New Punjabi Albums 2026')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Top Punjabi Album Songs')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Karan Aujla Diljit Sidhu Albums')}",
+        ]
+    elif q_lower == 'album_hindi' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Latest Hindi Movie Albums 2026')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Bollywood Soundtrack Albums')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Top Hindi Film OST')}",
+        ]
+    elif q_lower == 'album_haryanvi' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Latest Haryanvi Albums 2026')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Top Haryanvi Album Songs')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Masoom Sharma Renuka Albums')}",
+        ]
+    elif q_lower == 'album_bhojpuri' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Latest Bhojpuri Albums 2026')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Pawan Singh Bhojpuri Albums')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Khesari Lal Album Songs')}",
+        ]
+    elif q_lower == 'album_english' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Billboard Top Albums 2026')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Latest English Pop Albums')}",
+        ]
     else:
         pages_to_fetch = [page]
         if fetch_depth > 1:
             pages_to_fetch.append(page + 1)
-            if q_lower in ['home', 'punjabi', 'hindi', 'bhangra', 'funk', 'hindi_mix', 'hindi_90s', 'hindi_80s', 'hindi_70s', 'hindi_2000s', 'hindi_2010s', 'hindi_2026', 'hindi_classic']:
+            if q_lower in ['home', 'punjabi', 'hindi', 'bhangra', 'funk', 'albums', 'album_punjabi', 'album_hindi', 'album_haryanvi', 'album_bhojpuri', 'album_english', 'hindi_mix', 'hindi_90s', 'hindi_80s', 'hindi_70s', 'hindi_2000s', 'hindi_2010s', 'hindi_2026', 'hindi_classic']:
                 pages_to_fetch.append(page + 2)
         query_urls = [
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=50&p={p_num}&_marker=0&ctx=android&q={encoded_query}"
@@ -282,6 +317,106 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
 
     return songs
 
+def search_albums(category='all', page=1):
+    cat_queries = {
+        'all': ['New Punjabi Albums 2026', 'New Hindi Movie Albums 2026', 'Latest Haryanvi Albums 2026'],
+        'punjabi': ['New Punjabi Albums 2026', 'Top Punjabi Albums', 'Karan Aujla Diljit Sidhu Albums'],
+        'hindi': ['New Hindi Movie Albums 2026', 'Bollywood Soundtrack Albums', 'Latest Hindi Hits Album'],
+        'haryanvi': ['Latest Haryanvi Albums 2026', 'Top Haryanvi Albums', 'Masoom Sharma Renuka Albums'],
+        'bhojpuri': ['Latest Bhojpuri Albums 2026', 'Pawan Singh Albums', 'Khesari Lal Albums'],
+        'english': ['Billboard Top Albums 2026', 'Latest English Pop Albums', 'Grammy Winner Albums']
+    }
+    queries = cat_queries.get(category, cat_queries['all'])
+    albums = []
+    seen_names = set()
+    
+    for q in queries:
+        url = f"https://www.jiosaavn.com/api.php?__call=search.getAlbumResults&_format=json&n=25&p={page}&_marker=0&ctx=android&q={urllib.parse.quote(q)}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+        try:
+            with urllib.request.urlopen(req, timeout=9) as resp:
+                data = json.loads(resp.read().decode('utf-8', errors='ignore'))
+                results = data.get('results', [])
+                for a in results:
+                    raw_title = clean_string(a.get('title', '') or a.get('name', ''))
+                    if not raw_title:
+                        continue
+                    base_name = re.sub(r'[^a-zA-Z0-9]', '', raw_title).lower().strip()
+                    if not base_name or base_name in seen_names:
+                        continue
+                    seen_names.add(base_name)
+                    
+                    img = (a.get('image', '') or '').replace('150x150', '500x500')
+                    artist = clean_string(a.get('music', '') or a.get('primary_artists', '') or a.get('artist', ''))
+                    year = clean_string(str(a.get('year', '') or ''))
+                    lang = clean_string(a.get('language', '') or category)
+                    
+                    song_count = ''
+                    if isinstance(a.get('more_info'), dict):
+                        song_count = str(a.get('more_info', {}).get('song_count', '') or '')
+                    
+                    albums.append({
+                        'id': str(a.get('id', '')),
+                        'name': raw_title,
+                        'artist': artist,
+                        'image': img,
+                        'year': year,
+                        'language': lang,
+                        'songCount': song_count
+                    })
+        except Exception:
+            pass
+            
+    return albums
+
+
+def get_album_details(album_id, album_name=''):
+    songs = []
+    album_info = {}
+    
+    if album_id:
+        url = f"https://www.jiosaavn.com/api.php?__call=content.getAlbumDetails&_format=json&albumid={album_id}"
+        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'})
+        try:
+            with urllib.request.urlopen(req, timeout=9) as resp:
+                data = json.loads(resp.read().decode('utf-8', errors='ignore'))
+                raw_songs = data.get('songs', [])
+                album_info = {
+                    'id': str(album_id),
+                    'name': clean_string(data.get('title', '') or data.get('name', '') or album_name),
+                    'image': (data.get('image', '') or '').replace('150x150', '500x500'),
+                    'artist': clean_string(data.get('primary_artists', '') or data.get('music', '') or ''),
+                    'year': str(data.get('year', '') or '')
+                }
+                for r in raw_songs:
+                    enc = r.get('encrypted_media_url', '')
+                    audio_url = decrypt_url(enc) if enc else ''
+                    if not audio_url:
+                        continue
+                    title = clean_string(r.get('song', '') or r.get('title', ''))
+                    img = (r.get('image', '') or '').replace('150x150', '500x500') or album_info.get('image', '')
+                    dur = int(r.get('duration', 0)) if r.get('duration') else 0
+                    songs.append({
+                        'id': str(r.get('id', '')),
+                        'name': title,
+                        'artist': clean_string(r.get('primary_artists', '') or r.get('singers', '') or album_info.get('artist', '')),
+                        'album': album_info.get('name', ''),
+                        'image': img,
+                        'audioUrl': audio_url,
+                        'duration': dur,
+                        'year': album_info.get('year', '')
+                    })
+        except Exception:
+            pass
+            
+    # Fallback to search_jiosaavn if album details had no songs
+    if not songs and album_name:
+        songs = search_jiosaavn(album_name, page=1, fetch_depth=1)
+        if not album_info.get('name'):
+            album_info = {'id': str(album_id), 'name': album_name, 'image': '', 'artist': '', 'year': ''}
+            
+    return {'album': album_info, 'songs': songs}
+
 class MusicAppHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
@@ -298,6 +433,33 @@ class MusicAppHandler(SimpleHTTPRequestHandler):
             songs = search_jiosaavn(q, page=p, fetch_depth=2 if p == 1 else 1)
             
             body = json.dumps({'success': True, 'page': p, 'results': songs}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(body)
+        elif parsed.path == '/api/albums':
+            query_params = urllib.parse.parse_qs(parsed.query)
+            cat = query_params.get('cat', ['all'])[0].strip().lower()
+            try:
+                p = int(query_params.get('p', ['1'])[0])
+            except Exception:
+                p = 1
+            albums = search_albums(category=cat, page=p)
+            body = json.dumps({'success': True, 'category': cat, 'albums': albums}).encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json; charset=utf-8')
+            self.send_header('Content-Length', str(len(body)))
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(body)
+        elif parsed.path == '/api/album_details':
+            query_params = urllib.parse.parse_qs(parsed.query)
+            aid = query_params.get('id', [''])[0].strip()
+            aname = query_params.get('title', [''])[0].strip()
+            data = get_album_details(aid, aname)
+            body = json.dumps({'success': True, 'album': data.get('album', {}), 'songs': data.get('songs', [])}).encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'application/json; charset=utf-8')
             self.send_header('Content-Length', str(len(body)))
