@@ -54,6 +54,10 @@
       user-select: none;
     }
 
+    html {
+      scroll-behavior: auto !important;
+    }
+
     body {
       background-color: var(--bg-main);
       background-image: 
@@ -1468,35 +1472,37 @@
       box-shadow: 0 8px 25px var(--accent-glow);
     }
 
-    /* Frosted Glass Cards with Hover Elevation */
+    /* High Performance Song Card Rows (Zero Lag & Instant Click) */
     .song-card {
-      background: var(--card-bg);
+      background: rgba(18, 22, 38, 0.72);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 0.75rem 1.2rem;
+      border-radius: 14px;
+      padding: 0.75rem 1.15rem;
       display: flex;
       align-items: center;
       gap: 1.1rem;
       cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+      will-change: transform;
+      contain: content;
+      content-visibility: auto;
+      contain-intrinsic-size: 72px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       position: relative;
     }
 
     .song-card:hover {
       background: var(--card-hover);
       border-color: rgba(236, 72, 153, 0.35);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35), 0 0 15px rgba(236, 72, 153, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
     }
 
     /* Active Playing Song Row Highlight (Purple-Pink Glowing Border) */
     .song-card.playing {
-      background: rgba(139, 92, 246, 0.12);
-      border: 1px solid rgba(236, 72, 153, 0.5);
-      box-shadow: 0 0 22px rgba(236, 72, 153, 0.25), 0 4px 15px rgba(0, 0, 0, 0.3);
+      background: rgba(139, 92, 246, 0.14) !important;
+      border: 1px solid rgba(236, 72, 153, 0.55) !important;
+      box-shadow: 0 0 18px rgba(236, 72, 153, 0.22), 0 4px 12px rgba(0, 0, 0, 0.25) !important;
     }
 
     .song-thumb-wrap {
@@ -4782,6 +4788,7 @@
 
       activeKey = key;
       hubTitle.textContent = displayName;
+      window.scrollTo(0, 0);
       
       const yfb = document.getElementById('yearFilterBar');
       const afb = document.getElementById('angFilterBar');
@@ -5538,8 +5545,9 @@
         card.className = `song-card ${isPlaying ? 'playing' : ''}`;
         card.id = `song-${idx}`;
         card.setAttribute('data-song-id', song.id || '');
+        card.setAttribute('data-song-idx', idx);
         card.innerHTML = `
-          <div class="song-thumb-wrap" onclick="playSong(${idx})">
+          <div class="song-thumb-wrap">
             <img src="${thumbSrc}" class="song-thumb" alt="${song.name}" loading="lazy" onerror="this.onerror=null;this.src=getFallbackCover('${encodeURIComponent(song.name)}')" />
             <div class="play-overlay">
               <div class="equalizer">
@@ -5551,7 +5559,7 @@
               <i class="fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'}"></i>
             </div>
           </div>
-          <div class="song-info" onclick="playSong(${idx})">
+          <div class="song-info">
             <div class="song-title">${song.name}</div>
             <div class="song-artist">${song.artist}</div>
           </div>
@@ -5623,6 +5631,7 @@
 
     async function selectAlbumCategory(cat = 'all', chipElem = null, customTitle = '') {
       activeAlbumCategory = cat;
+      window.scrollTo(0, 0);
 
       // Update chip states
       const chips = document.querySelectorAll('#albumFilterBar .year-chip');
@@ -5750,6 +5759,7 @@
     async function openAlbumView(album) {
       if (!album) return;
       currentAlbumData = album;
+      window.scrollTo(0, 0);
       recordNavState({ type: 'album_detail', key: 'album_' + album.id, displayName: album.name, extra: { album: album } });
 
       const grid = document.getElementById('albumGrid');
@@ -5889,6 +5899,9 @@
       setupMediaSession(song);
       recordUserPlay(song);
 
+      savePlaybackState(true);
+      preBufferAudio(song.audioUrl);
+
       try {
         audio.pause();
         audio.src = song.audioUrl;
@@ -5962,6 +5975,10 @@
 
     // Robust Time Seek Bar Updates
     audio.addEventListener('timeupdate', () => {
+      if (typeof savePlaybackState === 'function') {
+        savePlaybackState(false);
+      }
+
       if (isSeeking) return;
 
       const current = audio.currentTime || 0;
@@ -6160,6 +6177,9 @@
     audio.addEventListener('pause', () => {
       syncPlayPauseIcons('play');
       updatePlayerCardState();
+      if (typeof savePlaybackState === 'function') {
+        savePlaybackState(true);
+      }
     });
 
     audio.addEventListener('waiting', () => {
@@ -6218,6 +6238,15 @@
         return;
       }
 
+      if (typeof pendingResumeTime !== 'undefined' && pendingResumeTime > 0) {
+        try {
+          if (audio.currentTime !== pendingResumeTime) {
+            audio.currentTime = pendingResumeTime;
+          }
+        } catch (e) {}
+        pendingResumeTime = 0;
+      }
+
       if (audio.paused) {
         syncPlayPauseIcons('spin');
         const playPromise = audio.play();
@@ -6225,6 +6254,7 @@
           playPromise.then(() => {
             syncPlayPauseIcons('pause');
             updatePlayerCardState();
+            if (typeof savePlaybackState === 'function') savePlaybackState(true);
           }).catch(err => {
             if (err && err.name === 'AbortError') return;
             console.warn('Play error:', err);
@@ -6236,6 +6266,7 @@
         audio.pause();
         syncPlayPauseIcons('play');
         updatePlayerCardState();
+        if (typeof savePlaybackState === 'function') savePlaybackState(true);
       }
     }
 
@@ -6600,12 +6631,232 @@
       });
     }
 
+    // ========================================================
+    // ZERO-LAG EVENT DELEGATION ON TRACKLIST CONTAINER
+    // ========================================================
+    function initSongListEventDelegation() {
+      if (!songList) return;
+      songList.addEventListener('click', (e) => {
+        // Ignore clicks on buttons, favorites, playlist add, delete
+        if (e.target.closest('button, .fav-btn, .add-pl-btn, a')) return;
+
+        const card = e.target.closest('.song-card');
+        if (!card) return;
+
+        const idxAttr = card.getAttribute('data-song-idx');
+        if (idxAttr === null) return;
+        const idx = parseInt(idxAttr, 10);
+        if (isNaN(idx)) return;
+
+        // Instant visual feedback: highlight clicked card immediately
+        document.querySelectorAll('.song-card').forEach(c => {
+          c.classList.remove('playing');
+          const pi = c.querySelector('.play-overlay i');
+          if (pi) {
+            pi.className = 'fa-solid fa-play';
+            pi.style.display = 'block';
+          }
+        });
+
+        card.classList.add('playing');
+        const overlayIcon = card.querySelector('.play-overlay i');
+        if (overlayIcon) {
+          overlayIcon.className = 'fa-solid fa-circle-notch fa-spin';
+          overlayIcon.style.display = 'block';
+        }
+
+        // Trigger playback immediately
+        playSong(idx);
+      });
+    }
+
+    // ========================================================
+    // PLAYBACK PERSISTENCE ENGINE (Save/Restore Across Close)
+    // ========================================================
+    let lastPlaybackSaveTime = 0;
+    let pendingResumeTime = 0;
+
+    function savePlaybackState(force = false) {
+      if (!currentPlayingSong) return;
+
+      const now = Date.now();
+      if (!force && (now - lastPlaybackSaveTime < 2500)) {
+        return; // Throttled every 2.5 seconds during timeupdate
+      }
+      lastPlaybackSaveTime = now;
+
+      try {
+        const curTime = audio.currentTime || 0;
+        const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+          ? audio.duration
+          : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+
+        const state = {
+          song: currentPlayingSong,
+          currentTime: curTime,
+          duration: dur,
+          queue: (playbackQueue && playbackQueue.length > 0) ? playbackQueue : [currentPlayingSong],
+          queueIndex: currentQueueIndex >= 0 ? currentQueueIndex : 0,
+          savedAt: now
+        };
+        localStorage.setItem('tejimusic_last_played', JSON.stringify(state));
+      } catch (e) {
+        console.warn('Save playback error:', e);
+      }
+    }
+
+    function restoreLastPlayedState() {
+      try {
+        const raw = localStorage.getItem('tejimusic_last_played');
+        if (!raw) return false;
+        const saved = JSON.parse(raw);
+        if (!saved || !saved.song || !saved.song.audioUrl) return false;
+
+        const song = saved.song;
+        currentPlayingSong = song;
+
+        if (saved.queue && Array.isArray(saved.queue) && saved.queue.length > 0) {
+          playbackQueue = saved.queue;
+          currentQueueIndex = typeof saved.queueIndex === 'number' ? saved.queueIndex : 0;
+        } else {
+          playbackQueue = [song];
+          currentQueueIndex = 0;
+        }
+
+        // Restore bottom player info immediately
+        playerTitle.textContent = song.name;
+        playerArtist.textContent = song.artist || 'TejiMusic';
+        const thumb = song.displayThumb || (song.image && song.image.length > 10 ? song.image : getFallbackCover(song.name));
+        playerThumb.src = thumb;
+
+        // Restore full-screen player info
+        const fsTitle = document.getElementById('fsPlayerTitle');
+        const fsArtist = document.getElementById('fsPlayerArtist');
+        const fsThumb = document.getElementById('fsPlayerThumb');
+        const fsAmbient = document.getElementById('fsAmbientBg');
+        if (fsTitle) fsTitle.textContent = song.name;
+        if (fsArtist) fsArtist.textContent = song.artist || 'TejiMusic';
+        if (fsThumb) fsThumb.src = thumb;
+        if (fsAmbient) fsAmbient.style.backgroundImage = `url("${thumb}")`;
+
+        // Restore timestamps and slider position
+        const curTime = typeof saved.currentTime === 'number' ? Math.max(0, saved.currentTime) : 0;
+        const totalDur = (typeof saved.duration === 'number' && saved.duration > 0)
+          ? saved.duration
+          : (song.duration ? Number(song.duration) : 0);
+
+        currentTimeEl.textContent = formatTime(curTime);
+        if (totalDur > 0) {
+          totalDurationEl.textContent = formatTime(totalDur);
+          const pct = Math.min(100, Math.max(0, (curTime / totalDur) * 100));
+          seekSlider.value = pct;
+          seekSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.16) ${pct}%)`;
+
+          const fsCurrent = document.getElementById('fsCurrentTime');
+          const fsTotal = document.getElementById('fsTotalDuration');
+          const fsSeek = document.getElementById('fsSeekSlider');
+          if (fsCurrent) fsCurrent.textContent = formatTime(curTime);
+          if (fsTotal) fsTotal.textContent = formatTime(totalDur);
+          if (fsSeek) {
+            fsSeek.value = pct;
+            fsSeek.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.18) ${pct}%)`;
+          }
+        }
+
+        // Preload audio in paused state and restore timestamp once metadata is ready
+        pendingResumeTime = curTime;
+        audio.src = song.audioUrl;
+        audio.preload = 'auto';
+
+        const applyRestoredTimestamp = () => {
+          if (pendingResumeTime > 0) {
+            try {
+              if (audio.duration && pendingResumeTime < audio.duration) {
+                audio.currentTime = pendingResumeTime;
+              } else if (!isNaN(audio.duration)) {
+                audio.currentTime = pendingResumeTime;
+              }
+            } catch (e) {}
+          }
+        };
+
+        audio.addEventListener('loadedmetadata', applyRestoredTimestamp, { once: true });
+        audio.addEventListener('canplay', applyRestoredTimestamp, { once: true });
+
+        syncPlayPauseIcons('play');
+        updatePlayerCardState();
+        setupMediaSession(song);
+
+        // Pre-buffer the song in the background for instant play and offline resilience
+        preBufferAudio(song.audioUrl);
+
+        return true;
+      } catch (err) {
+        console.warn('Restore last played error:', err);
+        return false;
+      }
+    }
+
+    // Save state on tab close or navigation
+    window.addEventListener('beforeunload', () => {
+      savePlaybackState(true);
+    });
+
+    // ========================================================
+    // FULL SONG PRE-BUFFERING & OFFLINE PLAYBACK ENGINE
+    // ========================================================
+    const activePrebufferUrls = new Set();
+
+    async function preBufferAudio(audioUrl) {
+      if (!audioUrl || !('caches' in window)) return;
+      if (activePrebufferUrls.has(audioUrl)) return;
+      activePrebufferUrls.add(audioUrl);
+
+      try {
+        const cache = await caches.open('tejimusic-audio-v1');
+        const cached = await cache.match(audioUrl, { ignoreSearch: true });
+        if (cached) {
+          activePrebufferUrls.delete(audioUrl);
+          preBufferNextInQueue();
+          return;
+        }
+
+        const resp = await fetch(audioUrl, { mode: 'cors' });
+        if (resp && resp.ok) {
+          await cache.put(audioUrl, resp.clone());
+          console.log('Audio file fully cached for offline playback:', audioUrl);
+          preBufferNextInQueue();
+        }
+      } catch (e) {
+        // Failed network fetch (offline or aborted) - safe to ignore
+      } finally {
+        activePrebufferUrls.delete(audioUrl);
+      }
+    }
+
+    function preBufferNextInQueue() {
+      if (playbackQueue && playbackQueue.length > 0 && currentQueueIndex >= 0) {
+        const nextIdx = (currentQueueIndex + 1) % playbackQueue.length;
+        const nextSong = playbackQueue[nextIdx];
+        if (nextSong && nextSong.audioUrl && !activePrebufferUrls.has(nextSong.audioUrl)) {
+          // Background prefetch next song with slight delay so it doesn't compete for bandwidth
+          setTimeout(() => preBufferAudio(nextSong.audioUrl), 2500);
+        }
+      }
+    }
+
     // Initialize User Base UI
     updateUserUI();
+
+    // Initialize Song List Event Delegation (Zero-lag instant clicks)
+    initSongListEventDelegation();
 
     // Initialize Full-Screen Expandable Player
     initFullScreenPlayerGestures();
     initBottomPlayerBarClick();
+
+    // Restore Last Played Song and Timestamp (Paused, ready to play)
+    restoreLastPlayedState();
 
     // Default Load: Home
     fetchSongs('home');
