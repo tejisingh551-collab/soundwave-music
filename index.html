@@ -1271,40 +1271,40 @@
       border-color: var(--violet);
     }
 
-    /* Hero Banner with "Play All" Button */
+    /* Sleek Compact Hero Hub Banner */
     .hero-banner {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
-      border: 1px solid var(--card-border);
-      border-radius: 18px;
-      padding: 1.6rem 2rem;
-      margin-bottom: 1.8rem;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(236, 72, 153, 0.1) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 0.85rem 1.35rem;
+      margin-bottom: 1.15rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .banner-content h2 {
-      font-size: 1.7rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-bottom: 0.35rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      margin-bottom: 0.18rem;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .banner-content p {
-      font-size: 0.92rem;
+      font-size: 0.82rem;
       color: var(--text-secondary);
     }
 
     .banner-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     /* Vibrant "Play All" Button */
@@ -1312,22 +1312,22 @@
       background: var(--accent-grad);
       color: #fff;
       border: none;
-      border-radius: 30px;
-      padding: 0.65rem 1.4rem;
-      font-size: 0.92rem;
+      border-radius: 24px;
+      padding: 0.52rem 1.2rem;
+      font-size: 0.86rem;
       font-weight: 700;
       letter-spacing: 0.3px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 18px var(--accent-glow);
+      box-shadow: 0 4px 16px var(--accent-glow);
       transition: all 0.22s ease;
     }
 
     .btn-play-all:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 25px var(--accent-glow);
+      transform: scale(1.04);
+      box-shadow: 0 6px 22px var(--accent-glow);
     }
 
     .btn-play-all:active {
@@ -2197,37 +2197,39 @@
         font-size: 1.15rem;
       }
 
-      /* Hero Banner Compact */
+      /* Hero Banner Compact & Sleek */
       .hero-banner {
-        padding: 0.9rem 1.1rem;
-        border-radius: 14px;
-        margin-bottom: 1rem;
-        flex-direction: column;
-        align-items: flex-start;
+        padding: 0.65rem 0.95rem;
+        border-radius: 12px;
+        margin-bottom: 0.85rem;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
         gap: 10px;
       }
 
       .banner-content h2 {
-        font-size: 1.22rem;
+        font-size: 1.05rem;
+        margin-bottom: 0.12rem;
       }
 
       .banner-content p {
-        font-size: 0.78rem;
+        font-size: 0.72rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 55vw;
       }
 
       .banner-actions {
-        width: 100%;
-        justify-content: space-between;
+        width: auto;
+        justify-content: flex-end;
       }
 
       .btn-play-all {
-        padding: 0.48rem 1rem;
-        font-size: 0.82rem;
-      }
-
-      .banner-tag {
-        padding: 0.42rem 0.75rem;
-        font-size: 0.68rem;
+        padding: 0.42rem 0.88rem;
+        font-size: 0.78rem;
+        gap: 6px;
       }
 
       /* Song List Compact on Mobile */
@@ -2606,29 +2608,21 @@
         </div>
       </div>
 
-      <!-- Hero Banner with "Play All" Button -->
+      <!-- Sleek Compact Hub Banner -->
       <div class="hero-banner">
         <div class="banner-content">
           <h2 id="hubTitle">🏠 Home Trending Hits</h2>
-          <p id="hubSubtitle">Clean Tracklist • 320kbps HD Audio • Live Cloud Stream</p>
+          <p id="hubSubtitle">Top Trending Hits • Live Stream</p>
         </div>
         <div class="banner-actions">
           <button class="btn-play-all" onclick="playAllSongs()" title="Play All Tracks">
             <i class="fa-solid fa-play"></i>
             <span>Play All</span>
           </button>
-          <button class="btn-del-pl-header" id="delPlaylistHeaderBtn" onclick="deleteActivePlaylist()" style="display:none;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;padding:0.48rem 0.9rem;border-radius:20px;font-weight:700;font-size:0.82rem;cursor:pointer;" title="Delete this Playlist">
+          <button class="btn-del-pl-header" id="delPlaylistHeaderBtn" onclick="deleteActivePlaylist()" style="display:none;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.35);color:#fca5a5;padding:0.45rem 0.85rem;border-radius:20px;font-weight:700;font-size:0.8rem;cursor:pointer;" title="Delete this Playlist">
             <i class="fa-solid fa-trash-can"></i>
             <span>Delete Playlist</span>
           </button>
-          <button class="btn-install-apk" id="installApkBtn" onclick="triggerAppInstall()" title="Install Android App / APK">
-            <i class="fa-brands fa-android"></i>
-            <span>Install APK</span>
-          </button>
-          <div class="banner-tag">
-            <i class="fa-solid fa-circle live-dot"></i>
-            <span>Live 320kbps</span>
-          </div>
         </div>
       </div>
 
@@ -4321,9 +4315,14 @@
       navSelect(key, targetTitle, activeNav);
     }
 
-    // Voice Command Search (Web Speech API)
+    // ==========================================
+    // ULTRA-FAST & ACCURATE VOICE SEARCH ENGINE
+    // ==========================================
     let recognition = null;
     let isListening = false;
+    let voiceSilenceTimer = null;
+    let latestVoiceTranscript = '';
+    let voiceHasSearched = false;
 
     function initSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -4331,48 +4330,127 @@
 
       const sr = new SpeechRecognition();
       sr.continuous = false;
-      sr.interimResults = false;
-      sr.lang = 'hi-IN'; // Recognizes Hindi and Indian English seamlessly
+      sr.interimResults = true; // Real-time live transcript for instant feedback
+      sr.maxAlternatives = 1;
+      // Use device locale or Indian English which transcribes Romanized Hindi/Punjabi/English song titles with high accuracy for JioSaavn
+      sr.lang = navigator.language && (navigator.language.startsWith('hi') || navigator.language.startsWith('en')) ? navigator.language : 'en-IN';
 
       sr.onstart = () => {
         isListening = true;
+        voiceHasSearched = false;
+        latestVoiceTranscript = '';
+        if (voiceSilenceTimer) {
+          clearTimeout(voiceSilenceTimer);
+          voiceSilenceTimer = null;
+        }
         if (voiceBtn) voiceBtn.classList.add('listening');
         if (voiceIcon) voiceIcon.className = 'fa-solid fa-microphone-lines';
-        showToast('🎤 Listening... Bolna shuru karein', 3000);
+        showToast('🎤 Listening... Gaane ya artist ka naam bolein!', 3000);
       };
 
       sr.onresult = (event) => {
-        const transcript = event.results && event.results[0] && event.results[0][0] ? event.results[0][0].transcript.trim() : '';
-        if (transcript) {
-          searchInput.value = transcript;
+        let interimText = '';
+        let finalText = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const item = event.results[i];
+          const text = item[0].transcript;
+          if (item.isFinal) {
+            finalText += text;
+          } else {
+            interimText += text;
+          }
+        }
+
+        const candidate = (finalText || interimText).trim();
+        if (candidate) {
+          latestVoiceTranscript = candidate;
+          searchInput.value = candidate;
           updateClearBtn();
-          showToast(`🔍 Searching: "${transcript}"`, 2000);
-          hubTitle.textContent = '🔍 Results for: ' + transcript;
-          hubSubtitle.textContent = 'Showing matching tracks from cloud library';
-          const yfb = document.getElementById('yearFilterBar');
-          if (yfb) yfb.style.display = 'none';
-          document.querySelectorAll('.nav-item').forEach(c => c.classList.remove('active'));
-          fetchSongs(transcript);
+
+          // Auto-trigger search after 800ms of user finishing their spoken words
+          if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
+          voiceSilenceTimer = setTimeout(() => {
+            triggerVoiceSearch(latestVoiceTranscript);
+          }, 800);
+        }
+
+        if (finalText.trim()) {
+          // If browser finalized transcript, search immediately without waiting!
+          if (voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
+          triggerVoiceSearch(finalText.trim());
         }
       };
 
       sr.onerror = (event) => {
-        console.warn('Voice recognition error:', event.error);
-        stopVoiceSearch();
+        console.warn('Voice recognition notice:', event.error);
         if (event.error === 'not-allowed') {
           showToast('Mic permission allow karein browser settings se.');
+          stopVoiceSearch();
         } else if (event.error === 'no-speech') {
-          showToast('Koi awaaz sunai nahi di. Dobara try karein.');
+          if (latestVoiceTranscript && !voiceHasSearched) {
+            triggerVoiceSearch(latestVoiceTranscript);
+          } else {
+            showToast('Koi awaaz sunai nahi di. Dobara tap karein.');
+            stopVoiceSearch();
+          }
         } else {
-          showToast('Voice search cancel ho gaya.');
+          if (latestVoiceTranscript && !voiceHasSearched) {
+            triggerVoiceSearch(latestVoiceTranscript);
+          } else {
+            stopVoiceSearch();
+          }
         }
       };
 
       sr.onend = () => {
-        stopVoiceSearch();
+        if (latestVoiceTranscript && !voiceHasSearched) {
+          triggerVoiceSearch(latestVoiceTranscript);
+        } else {
+          stopVoiceSearch();
+        }
       };
 
       return sr;
+    }
+
+    function triggerVoiceSearch(rawQuery) {
+      if (voiceSilenceTimer) {
+        clearTimeout(voiceSilenceTimer);
+        voiceSilenceTimer = null;
+      }
+      if (!rawQuery) {
+        stopVoiceSearch();
+        return;
+      }
+      if (voiceHasSearched) return;
+      voiceHasSearched = true;
+
+      // Clean punctuation e.g. "tum hi ho." -> "tum hi ho"
+      const query = rawQuery.replace(/[.,?!]+$/, '').trim();
+      stopVoiceSearch();
+
+      if (query) {
+        searchInput.value = query;
+        updateClearBtn();
+        showToast('🔍 Searching: "' + query + '" 🎵', 2000);
+        hubTitle.textContent = '🔍 Results for: ' + query;
+        hubSubtitle.textContent = 'Showing matching tracks from cloud library';
+
+        // Hide filter bars
+        const filterBarIds = ['yearFilterBar', 'angFilterBar', 'lofiFilterBar', 'djFilterBar', 'hindiFilterBar', 'albumFilterBar', 'albumDetailBanner'];
+        filterBarIds.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
+
+        // Hide album grid if open
+        const grid = document.getElementById('albumGrid');
+        if (grid) grid.style.display = 'none';
+
+        document.querySelectorAll('.nav-item').forEach(c => c.classList.remove('active'));
+        fetchSongs(query, 1, false);
+      }
     }
 
     function toggleVoiceSearch() {
@@ -4383,9 +4461,17 @@
       }
 
       if (isListening) {
-        if (recognition) recognition.stop();
-        stopVoiceSearch();
+        if (latestVoiceTranscript && !voiceHasSearched) {
+          triggerVoiceSearch(latestVoiceTranscript);
+        } else {
+          if (recognition) {
+            try { recognition.stop(); } catch(e){}
+          }
+          stopVoiceSearch();
+        }
       } else {
+        latestVoiceTranscript = '';
+        voiceHasSearched = false;
         if (!recognition) {
           recognition = initSpeechRecognition();
         }
@@ -4393,13 +4479,21 @@
           recognition.start();
         } catch (err) {
           recognition = initSpeechRecognition();
-          if (recognition) recognition.start();
+          if (recognition) {
+            try { recognition.start(); } catch(e){
+              console.warn('Recognition start retry notice:', e);
+            }
+          }
         }
       }
     }
 
     function stopVoiceSearch() {
       isListening = false;
+      if (voiceSilenceTimer) {
+        clearTimeout(voiceSilenceTimer);
+        voiceSilenceTimer = null;
+      }
       if (voiceBtn) voiceBtn.classList.remove('listening');
       if (voiceIcon) voiceIcon.className = 'fa-solid fa-microphone';
     }
