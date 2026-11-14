@@ -1286,11 +1286,48 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
+    .banner-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.18rem;
+    }
+
+    .btn-hub-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 0.32rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn-hub-back:hover {
+      background: var(--accent-grad);
+      border-color: transparent;
+      transform: translateX(-2px);
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-hub-back:active {
+      transform: scale(0.96);
+    }
+
     .banner-content h2 {
       font-size: 1.25rem;
       font-weight: 700;
       letter-spacing: -0.3px;
-      margin-bottom: 0.18rem;
+      margin-bottom: 0;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -2208,9 +2245,23 @@
         gap: 10px;
       }
 
+      .banner-title-row {
+        gap: 7px;
+        max-width: 60vw;
+      }
+
+      .btn-hub-back {
+        padding: 0.25rem 0.58rem;
+        font-size: 0.72rem;
+        gap: 4px;
+      }
+
       .banner-content h2 {
         font-size: 1.05rem;
         margin-bottom: 0.12rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .banner-content p {
@@ -2608,10 +2659,16 @@
         </div>
       </div>
 
-      <!-- Sleek Compact Hub Banner -->
+      <!-- Sleek Compact Hub Banner with Back Button -->
       <div class="hero-banner">
         <div class="banner-content">
-          <h2 id="hubTitle">🏠 Home Trending Hits</h2>
+          <div class="banner-title-row">
+            <button class="btn-hub-back" id="hubBackBtn" onclick="appGoBack()" title="Back to Previous View" style="display: none;">
+              <i class="fa-solid fa-arrow-left"></i>
+              <span>Back</span>
+            </button>
+            <h2 id="hubTitle">🏠 Home Trending Hits</h2>
+          </div>
           <p id="hubSubtitle">Top Trending Hits • Live Stream</p>
         </div>
         <div class="banner-actions">
@@ -3457,6 +3514,7 @@
       const u = getActiveUser();
       const pl = (u.customPlaylists || []).find(p => p.id === playlistId);
       if (!pl) return;
+      recordNavState({ type: 'playlist', key: 'playlist_' + playlistId, displayName: `${pl.icon || '🎵'} ${pl.name}`, extra: { playlistId: playlistId } });
 
       activeCustomPlaylistId = playlistId;
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -3939,8 +3997,172 @@
     // Initialize swipe gestures immediately
     initMobileSidebarSwipeGestures();
 
+    // ==========================================
+    // IN-APP NAVIGATION HISTORY & BACK ENGINE
+    // ==========================================
+    let appNavHistory = [];
+    let currentNavState = { type: 'nav', key: 'home', displayName: '🏠 Home Trending Hits' };
+    let isNavigatingState = false;
+
+    function updateBackBtnVisibility() {
+      const btn = document.getElementById('hubBackBtn');
+      if (!btn) return;
+      const isRootHome = currentNavState.type === 'nav' && currentNavState.key === 'home';
+      if (isRootHome && appNavHistory.length === 0) {
+        btn.style.display = 'none';
+      } else {
+        btn.style.display = 'inline-flex';
+      }
+    }
+
+    function recordNavState(newState) {
+      if (isNavigatingState) return;
+      if (!newState || !newState.type) return;
+
+      // Avoid pushing duplicate consecutive state
+      const isSame = (
+        currentNavState.type === newState.type &&
+        currentNavState.key === newState.key &&
+        JSON.stringify(currentNavState.extra || {}) === JSON.stringify(newState.extra || {})
+      );
+      if (isSame) return;
+
+      // Push previous state to in-memory history stack
+      appNavHistory.push({ ...currentNavState });
+      if (appNavHistory.length > 50) appNavHistory.shift();
+
+      // Update current state
+      currentNavState = { ...newState };
+
+      // Sync with browser history via pushState
+      try {
+        const hashTag = newState.key || newState.type || 'view';
+        window.history.pushState(newState, '', '#' + hashTag);
+      } catch (e) {}
+
+      updateBackBtnVisibility();
+    }
+
+    function appGoBack() {
+      if (window.history.state && appNavHistory.length > 0) {
+        window.history.back();
+      } else {
+        popAndRestoreNavState();
+      }
+    }
+
+    function popAndRestoreNavState() {
+      if (appNavHistory.length > 0) {
+        const prevState = appNavHistory.pop();
+        restoreNavState(prevState);
+      } else {
+        restoreNavState({ type: 'nav', key: 'home', displayName: '🏠 Home Trending Hits' });
+      }
+    }
+
+    function restoreNavState(state) {
+      if (!state) state = { type: 'nav', key: 'home', displayName: '🏠 Home Trending Hits' };
+      isNavigatingState = true;
+      currentNavState = { ...state };
+      updateBackBtnVisibility();
+
+      try {
+        switch (state.type) {
+          case 'nav': {
+            const navId = 'nav-' + (state.key || 'home').replace(/_/g, '-');
+            const elem = document.getElementById(navId);
+            navSelect(state.key, state.displayName, elem);
+            break;
+          }
+          case 'albums': {
+            const navId = 'nav-album-' + (state.cat || 'all');
+            const elem = document.getElementById(navId);
+            selectAlbumNav(state.cat || 'all', state.displayName || '💿 All New Albums 2026', elem);
+            break;
+          }
+          case 'album_detail': {
+            if (state.extra && state.extra.album) {
+              openAlbumView(state.extra.album);
+            } else {
+              selectAlbumCategory('all');
+            }
+            break;
+          }
+          case 'bhangra_year': {
+            navSelect('bhangra', '🥁 Punjabi Bhangra Hits');
+            selectBhangraYear(state.extra.yearKey);
+            break;
+          }
+          case 'sehaj_ang': {
+            navSelect('sehaj_path', 'ੴ Sri Guru Granth Sahib Ji Sehaj Path');
+            selectSehajAng(state.extra.rangeKey);
+            break;
+          }
+          case 'lofi_filter': {
+            navSelect('lofi', '☕ Lo-Fi Midnight Vibes');
+            selectLofiFilter(state.extra.filterKey);
+            break;
+          }
+          case 'dj_filter': {
+            navSelect('punjabi_dj', '🔥 DJ Punjabi Remix Collection');
+            selectDjFilter(state.extra.filterKey);
+            break;
+          }
+          case 'hindi_era': {
+            navSelect('hindi', '🇮🇳 Hindi & Bollywood Hits');
+            selectHindiEra(state.extra.eraKey);
+            break;
+          }
+          case 'playlist': {
+            openPlaylistView(state.extra.playlistId);
+            break;
+          }
+          case 'search': {
+            if (searchInput) searchInput.value = state.extra.query || '';
+            updateClearBtn();
+            hubTitle.textContent = '🔍 Results for: ' + (state.extra.query || '');
+            hubSubtitle.textContent = 'Showing matching tracks from cloud library';
+            fetchSongs(state.extra.query || '', 1, false);
+            break;
+          }
+          case 'special': {
+            const navId = (state.extra && state.extra.tab === 'favorites') ? 'nav-favs' : 'nav-history';
+            const elem = document.getElementById(navId);
+            switchTab(state.extra ? state.extra.tab : 'favorites', elem);
+            break;
+          }
+          default: {
+            navSelect('home', '🏠 Home Trending Hits');
+          }
+        }
+      } catch (err) {
+        console.warn('Restore nav state notice:', err);
+        navSelect('home', '🏠 Home Trending Hits');
+      } finally {
+        isNavigatingState = false;
+        updateBackBtnVisibility();
+      }
+    }
+
+    // Hardware / Browser Gesture Back Button Listener
+    window.addEventListener('popstate', (event) => {
+      if (event.state) {
+        restoreNavState(event.state);
+      } else if (appNavHistory.length > 0) {
+        popAndRestoreNavState();
+      } else {
+        restoreNavState({ type: 'nav', key: 'home', displayName: '🏠 Home Trending Hits' });
+      }
+    });
+
+    // Initialize initial root browser history state
+    try {
+      window.history.replaceState({ type: 'nav', key: 'home', displayName: '🏠 Home Trending Hits' }, '', '#home');
+    } catch (e) {}
+
     // Sidebar Navigation Click
     function navSelect(key, displayName, elem) {
+      recordNavState({ type: 'nav', key: key, displayName: displayName });
       activeCustomPlaylistId = null;
       const delBtn = document.getElementById('delPlaylistHeaderBtn');
       if (delBtn) delBtn.style.display = 'none';
@@ -4070,6 +4292,7 @@
       };
 
       const selected = yearMap[yearKey] || yearMap['all'];
+      recordNavState({ type: 'bhangra_year', key: 'bhangra_' + yearKey, displayName: selected.title, extra: { yearKey: yearKey } });
       hubTitle.textContent = selected.title;
       hubSubtitle.textContent = selected.sub + ' • 320kbps HD';
       currentPage = 1;
@@ -4082,6 +4305,7 @@
       if (elem) elem.classList.add('active');
 
       if (rangeKey === 'all') {
+        recordNavState({ type: 'sehaj_ang', key: 'sehaj_all', displayName: 'ੴ Sehaj Path (Ang 1 - 1430)', extra: { rangeKey: 'all' } });
         hubTitle.textContent = 'ੴ Sri Guru Granth Sahib Ji Sehaj Path';
         hubSubtitle.textContent = 'Complete Ang 1 to 1430 • Full Length Audio Episodes';
         currentPage = 1;
@@ -4090,6 +4314,7 @@
         const parts = rangeKey.split('-');
         const startAng = parseInt(parts[0]);
         const endAng = parseInt(parts[1]);
+        recordNavState({ type: 'sehaj_ang', key: 'sehaj_' + rangeKey, displayName: `ੴ Sehaj Path: Ang ${startAng} - ${endAng}`, extra: { rangeKey: rangeKey } });
         hubTitle.textContent = `ੴ Sehaj Path: Ang ${startAng} - ${endAng}`;
         hubSubtitle.textContent = `Sri Guru Granth Sahib Ji Ang ${startAng} to ${endAng} • Full HD Audio`;
 
@@ -4140,6 +4365,7 @@
       };
 
       const target = lofiMap[filterKey] || lofiMap['all'];
+      recordNavState({ type: 'lofi_filter', key: 'lofi_' + filterKey, displayName: target.title, extra: { filterKey: filterKey } });
       if (hubTitle) hubTitle.textContent = target.title;
       if (hubSubtitle) hubSubtitle.textContent = target.sub;
       fetchSongs(target.q, 1, false);
@@ -4172,6 +4398,7 @@
       };
 
       const target = djMap[filterKey] || djMap['all'];
+      recordNavState({ type: 'dj_filter', key: 'dj_' + filterKey, displayName: target.title, extra: { filterKey: filterKey } });
       if (hubTitle) hubTitle.textContent = target.title;
       if (hubSubtitle) hubSubtitle.textContent = target.sub;
       fetchSongs(target.q, 1, false);
@@ -4207,6 +4434,7 @@
       };
 
       const target = eraMap[eraKey] || eraMap['mix'];
+      recordNavState({ type: 'hindi_era', key: 'hindi_' + eraKey, displayName: target.title, extra: { eraKey: eraKey } });
       if (hubTitle) hubTitle.textContent = target.title;
       if (hubSubtitle) hubSubtitle.textContent = target.sub;
       fetchSongs(target.q, 1, false);
@@ -4237,6 +4465,8 @@
       document.getElementById('sidebar').classList.remove('open');
       const bd = document.getElementById('sidebarBackdrop');
       if (bd) bd.classList.remove('open');
+
+      recordNavState({ type: 'special', key: 'special_' + tab, displayName: tab === 'favorites' ? "❤️ Favorites" : "🕒 Recently Played", extra: { tab: tab } });
 
       if (tab === 'favorites') {
         const u = getActiveUser();
@@ -4431,6 +4661,7 @@
       stopVoiceSearch();
 
       if (query) {
+        recordNavState({ type: 'search', key: 'search_' + query, displayName: '🔍 ' + query, extra: { query: query } });
         searchInput.value = query;
         updateClearBtn();
         showToast('🔍 Searching: "' + query + '" 🎵', 2000);
@@ -4828,6 +5059,7 @@
       };
 
       const selected = catMap[cat] || catMap['all'];
+      recordNavState({ type: 'albums', key: 'albums_' + cat, cat: cat, displayName: customTitle || selected.title });
       hubTitle.textContent = customTitle || selected.title;
       hubSubtitle.textContent = selected.sub + ' • 320kbps HD';
 
@@ -4924,6 +5156,7 @@
     async function openAlbumView(album) {
       if (!album) return;
       currentAlbumData = album;
+      recordNavState({ type: 'album_detail', key: 'album_' + album.id, displayName: album.name, extra: { album: album } });
 
       const grid = document.getElementById('albumGrid');
       const banner = document.getElementById('albumDetailBanner');
@@ -4992,12 +5225,7 @@
     }
 
     function backToAlbumsGrid() {
-      const banner = document.getElementById('albumDetailBanner');
-      const grid = document.getElementById('albumGrid');
-      if (banner) banner.style.display = 'none';
-      if (grid) grid.style.display = 'grid';
-      songList.innerHTML = '';
-      selectAlbumCategory(activeAlbumCategory);
+      appGoBack();
     }
 
     function fallbackLoadAlbumSongs(cat) {
@@ -5451,6 +5679,7 @@
         if (delBtn) delBtn.style.display = 'none';
         const yfb = document.getElementById('yearFilterBar');
         if (yfb) yfb.style.display = 'none';
+        recordNavState({ type: 'search', key: 'search_' + val, displayName: '🔍 ' + val, extra: { query: val } });
         hubTitle.textContent = '🔍 Results for: ' + val;
         hubSubtitle.textContent = 'Showing matching tracks from cloud library';
         document.querySelectorAll('.nav-item').forEach(c => c.classList.remove('active'));
