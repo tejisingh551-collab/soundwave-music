@@ -2123,6 +2123,506 @@
       transform: scale(1.3);
     }
 
+    /* Expandable Full-Screen Now Playing Overlay (Spotify / YT Music style) */
+    .fs-player-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      width: 100dvw;
+      height: 100vh;
+      height: 100dvh;
+      background: #090b14;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.38s;
+      overflow: hidden;
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .fs-player-overlay.open {
+      transform: translateY(0) !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+    }
+
+    /* Ambient dynamic backdrop glow */
+    .fs-ambient-bg {
+      position: absolute;
+      top: -20%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(75px) saturate(220%);
+      -webkit-filter: blur(75px) saturate(220%);
+      opacity: 0.34;
+      pointer-events: none;
+      z-index: 1;
+      transform: scale(1.1);
+      transition: background-image 0.5s ease;
+    }
+
+    .fs-ambient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(9, 11, 20, 0.68) 0%, rgba(9, 11, 20, 0.88) 42%, #090b14 88%);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Pull down drag pill for touch affordance */
+    .fs-drag-handle-wrap {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      padding-top: max(10px, env(safe-area-inset-top, 10px));
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+    }
+
+    .fs-drag-pill {
+      width: 44px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.32);
+      border-radius: 999px;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .fs-drag-handle-wrap:active .fs-drag-pill {
+      background: rgba(255, 255, 255, 0.65);
+      transform: scaleX(1.18);
+    }
+
+    /* Main Content Container */
+    .fs-content-container {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 520px;
+      height: 100%;
+      margin: 0 auto;
+      padding: 0 1.6rem;
+      padding-bottom: max(22px, env(safe-area-inset-bottom, 22px));
+      box-sizing: border-box;
+      justify-content: space-between;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Top Bar */
+    .fs-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.4rem 0 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .fs-collapse-btn,
+    .fs-top-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .fs-collapse-btn:hover,
+    .fs-top-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: scale(1.06);
+    }
+
+    .fs-collapse-btn:active,
+    .fs-top-btn:active {
+      transform: scale(0.95);
+    }
+
+    .fs-header-meta {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-width: 65%;
+    }
+
+    .fs-header-tag {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .fs-header-source {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Center: Large Artwork */
+    .fs-artwork-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-height: 0;
+      padding: 0.5rem 0;
+    }
+
+    .fs-artwork-card {
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 1 / 1;
+      max-height: 42vh;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(139, 92, 246, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+      background: #111422;
+    }
+
+    .fs-thumb-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    /* Track Metadata Row */
+    .fs-track-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.5rem 0 0.3rem;
+      flex-shrink: 0;
+    }
+
+    .fs-track-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .fs-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 3px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.01em;
+    }
+
+    .fs-artist {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 500;
+    }
+
+    .fs-fav-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .fs-fav-btn:hover {
+      color: var(--rose);
+      transform: scale(1.12);
+    }
+
+    /* Seeker & Timestamps */
+    .fs-seek-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0.4rem 0;
+      flex-shrink: 0;
+    }
+
+    .fs-seek-slider-wrap {
+      width: 100%;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    .fs-seek-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      outline: none;
+      transition: height 0.15s ease;
+    }
+
+    .fs-seek-slider-wrap:hover .fs-seek-slider {
+      height: 8px;
+    }
+
+    .fs-seek-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 12px var(--rose), 0 2px 6px rgba(0,0,0,0.5);
+      cursor: pointer;
+      border: 2px solid var(--rose);
+      transition: transform 0.15s;
+    }
+
+    .fs-seek-slider-wrap:hover .fs-seek-slider::-webkit-slider-thumb {
+      transform: scale(1.2);
+    }
+
+    .fs-seek-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 12px var(--rose);
+      border: 2px solid var(--rose);
+      cursor: pointer;
+    }
+
+    .fs-time-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 0 2px;
+    }
+
+    /* Controls Bar */
+    .fs-controls-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0.2rem;
+      flex-shrink: 0;
+    }
+
+    .fs-ctrl-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fs-ctrl-btn:hover {
+      color: #fff;
+      transform: scale(1.12);
+    }
+
+    .fs-ctrl-btn.active {
+      color: var(--rose);
+      filter: drop-shadow(0 0 10px var(--accent-glow));
+    }
+
+    .fs-skip-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.65rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: transform 0.18s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fs-skip-btn:hover {
+      transform: scale(1.15);
+      color: #f1f5f9;
+    }
+
+    .fs-skip-btn:active {
+      transform: scale(0.92);
+    }
+
+    .fs-play-btn {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: var(--accent-grad);
+      color: #fff;
+      border: none;
+      font-size: 1.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 8px 30px var(--accent-glow), 0 0 25px rgba(236, 72, 153, 0.4);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .fs-play-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 10px 38px var(--accent-glow), 0 0 35px rgba(236, 72, 153, 0.6);
+    }
+
+    .fs-play-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Footer Row: Volume & HD Badge */
+    .fs-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.4rem 0.2rem 0;
+      flex-shrink: 0;
+    }
+
+    .fs-vol-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      cursor: pointer;
+      padding: 0.2rem;
+      transition: color 0.2s;
+    }
+
+    .fs-vol-btn:hover {
+      color: #fff;
+    }
+
+    .fs-vol-slider-wrap {
+      flex: 1;
+      max-width: 180px;
+      display: flex;
+      align-items: center;
+    }
+
+    .fs-vol-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .fs-vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--rose);
+      box-shadow: 0 0 8px var(--rose);
+      border: 2px solid #fff;
+    }
+
+    .fs-badge-tag {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Mini player bar cursor */
+    .player-bar {
+      cursor: pointer;
+    }
+    .player-track {
+      cursor: pointer;
+    }
+
+    /* Mobile Responsive Full-Screen Player */
+    @media (max-width: 600px) {
+      .fs-content-container {
+        padding: 0 1.25rem;
+        padding-bottom: max(18px, env(safe-area-inset-bottom, 18px));
+      }
+      .fs-artwork-card {
+        max-width: 320px;
+        max-height: 38vh;
+        border-radius: 18px;
+      }
+      .fs-title {
+        font-size: 1.25rem;
+      }
+      .fs-artist {
+        font-size: 0.9rem;
+      }
+      .fs-play-btn {
+        width: 62px;
+        height: 62px;
+        font-size: 1.45rem;
+      }
+      .fs-skip-btn {
+        font-size: 1.5rem;
+      }
+      .fs-ctrl-btn {
+        font-size: 1.2rem;
+      }
+    }
+
     /* Mobile & iPhone Responsive Upgrades */
     @media (max-width: 860px) {
       .app-layout {
@@ -2868,6 +3368,95 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- Expandable Full-Screen Now Playing View (Spotify / YouTube Music style) -->
+  <div class="fs-player-overlay" id="fullScreenPlayer" aria-hidden="true">
+    <!-- Dynamic Ambient Blurred Backdrop -->
+    <div class="fs-ambient-bg" id="fsAmbientBg"></div>
+    <div class="fs-ambient-overlay"></div>
+
+    <!-- Swipe Handle Pill for Mobile Drag Down -->
+    <div class="fs-drag-handle-wrap" id="fsDragHandleWrap">
+      <div class="fs-drag-pill"></div>
+    </div>
+
+    <div class="fs-content-container">
+      <!-- Top Bar -->
+      <div class="fs-top-bar">
+        <button class="fs-collapse-btn" id="fsCollapseBtn" onclick="closeFullScreenPlayer(true)" title="Collapse Player" aria-label="Collapse Now Playing">
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="fs-header-meta">
+          <span class="fs-header-tag">PLAYING FROM LIBRARY</span>
+          <span class="fs-header-source" id="fsHeaderSource">TejiMusic Live Stream</span>
+        </div>
+        <button class="fs-top-btn" onclick="openAddToPlaylistCurrent()" title="Add to Playlist">
+          <i class="fa-solid fa-list-ul"></i>
+        </button>
+      </div>
+
+      <!-- Center: Large Album Artwork / Song Thumbnail -->
+      <div class="fs-artwork-container">
+        <div class="fs-artwork-card">
+          <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=500" id="fsPlayerThumb" class="fs-thumb-img" alt="Artwork" />
+        </div>
+      </div>
+
+      <!-- Song Title, Artist Name & Favorite Button -->
+      <div class="fs-track-row">
+        <div class="fs-track-info">
+          <h2 class="fs-title" id="fsPlayerTitle">Select a song to play</h2>
+          <p class="fs-artist" id="fsPlayerArtist">TejiMusic Live Stream</p>
+        </div>
+        <button class="fs-fav-btn" id="fsPlayerFavBtn" onclick="toggleFavoriteCurrent()" title="Favorite">
+          <i class="fa-regular fa-heart"></i>
+        </button>
+      </div>
+
+      <!-- Interactive Time Seek Bar with Timestamps -->
+      <div class="fs-seek-container">
+        <div class="fs-seek-slider-wrap">
+          <input type="range" class="fs-seek-slider" id="fsSeekSlider" min="0" max="100" value="0" step="0.1" oninput="onFsSeekInput(this.value)" onchange="commitSeek(this.value)" />
+        </div>
+        <div class="fs-time-row">
+          <span class="fs-time" id="fsCurrentTime">0:00</span>
+          <span class="fs-time" id="fsTotalDuration">0:00</span>
+        </div>
+      </div>
+
+      <!-- Large Playback Controls (Shuffle, Previous, Play/Pause, Next, Repeat) -->
+      <div class="fs-controls-container">
+        <button class="fs-ctrl-btn" id="fsShuffleBtn" onclick="toggleShuffle()" title="Shuffle">
+          <i class="fa-solid fa-shuffle"></i>
+        </button>
+        <button class="fs-skip-btn" onclick="playPrevious()" title="Previous Track">
+          <i class="fa-solid fa-backward-step"></i>
+        </button>
+        <button class="fs-play-btn" id="fsPlayPauseBtn" onclick="togglePlayPause()" title="Play / Pause">
+          <i class="fa-solid fa-play" id="fsPlayIcon"></i>
+        </button>
+        <button class="fs-skip-btn" onclick="playNext()" title="Next Track">
+          <i class="fa-solid fa-forward-step"></i>
+        </button>
+        <button class="fs-ctrl-btn" id="fsRepeatBtn" onclick="toggleRepeat()" title="Repeat">
+          <i class="fa-solid fa-repeat"></i>
+        </button>
+      </div>
+
+      <!-- Volume & HD Audio Badge -->
+      <div class="fs-footer-row">
+        <button class="fs-vol-btn" onclick="toggleMute()" title="Mute/Unmute">
+          <i class="fa-solid fa-volume-high" id="fsVolIcon"></i>
+        </button>
+        <div class="fs-vol-slider-wrap">
+          <input type="range" class="fs-vol-slider" id="fsVolSlider" min="0" max="1" step="0.01" value="1" oninput="changeVolume(this.value)" />
+        </div>
+        <div class="fs-badge-tag">
+          <i class="fa-solid fa-bolt" style="color: #ec4899;"></i> 320 KBPS HD
+        </div>
+      </div>
     </div>
   </div>
 
@@ -4038,6 +4627,10 @@
     }
 
     function appGoBack() {
+      if (typeof isFullScreenPlayerOpen !== 'undefined' && isFullScreenPlayerOpen) {
+        closeFullScreenPlayer(true);
+        return;
+      }
       if (window.history.state && appNavHistory.length > 0) {
         window.history.back();
       } else {
@@ -4140,6 +4733,10 @@
 
     // Hardware / Browser Gesture Back Button Listener
     window.addEventListener('popstate', (event) => {
+      if (typeof isFullScreenPlayerOpen !== 'undefined' && isFullScreenPlayerOpen) {
+        closeFullScreenPlayer(false);
+        return;
+      }
       if (appNavHistory.length > 0) {
         appNavHistory.pop();
       }
@@ -5266,8 +5863,27 @@
       const thumb = song.displayThumb || (song.image && song.image.length > 10 ? song.image : getFallbackCover(song.name));
       playerThumb.src = thumb;
 
+      // Update Full-Screen Player info immediately
+      const fsTitle = document.getElementById('fsPlayerTitle');
+      const fsArtist = document.getElementById('fsPlayerArtist');
+      const fsThumb = document.getElementById('fsPlayerThumb');
+      const fsAmbient = document.getElementById('fsAmbientBg');
+      const fsSeek = document.getElementById('fsSeekSlider');
+      const fsCurrent = document.getElementById('fsCurrentTime');
+      const fsTotal = document.getElementById('fsTotalDuration');
+      if (fsTitle) fsTitle.textContent = song.name;
+      if (fsArtist) fsArtist.textContent = song.artist || 'TejiMusic';
+      if (fsThumb) fsThumb.src = thumb;
+      if (fsAmbient) fsAmbient.style.backgroundImage = `url("${thumb}")`;
+      if (fsSeek) {
+        fsSeek.value = 0;
+        fsSeek.style.background = 'rgba(255, 255, 255, 0.18)';
+      }
+      if (fsCurrent) fsCurrent.textContent = '0:00';
+      if (fsTotal) fsTotal.textContent = initialDur > 0 ? formatTime(initialDur) : '0:00';
+
       // Immediate loading indicator
-      playIcon.className = 'fa-solid fa-circle-notch fa-spin';
+      syncPlayPauseIcons('spin');
 
       updatePlayerCardState();
       setupMediaSession(song);
@@ -5281,7 +5897,7 @@
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
-            playIcon.className = 'fa-solid fa-pause';
+            syncPlayPauseIcons('pause');
             updatePlayerCardState();
           }).catch(err => {
             if (err && err.name === 'AbortError') {
@@ -5289,29 +5905,40 @@
               return;
             }
             console.warn('Audio play error:', err);
-            playIcon.className = 'fa-solid fa-play';
+            syncPlayPauseIcons('play');
             updatePlayerCardState();
             showToast('Playback start karne ke liye Play button dabayein.');
           });
         }
       } catch (err) {
         console.error('Audio load error:', err);
-        playIcon.className = 'fa-solid fa-play';
+        syncPlayPauseIcons('play');
         updatePlayerCardState();
       }
     }
 
     // Synchronize All Visual Card States and Bottom Player
     function updatePlayerCardState() {
+      const fsFavBtn = document.getElementById('fsPlayerFavBtn');
       if (!currentPlayingSong) {
         playerFavBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
+        if (fsFavBtn) fsFavBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
         return;
       }
 
       const isFav = favorites.some(f => f.id === currentPlayingSong.id);
-      playerFavBtn.innerHTML = `<i class="fa-${isFav ? 'solid' : 'regular'} fa-heart" style="${isFav ? 'color:var(--rose)' : ''}"></i>`;
+      const favHtml = `<i class="fa-${isFav ? 'solid' : 'regular'} fa-heart" style="${isFav ? 'color:var(--rose)' : ''}"></i>`;
+      playerFavBtn.innerHTML = favHtml;
+      if (fsFavBtn) fsFavBtn.innerHTML = favHtml;
 
       const isAudioPlaying = !audio.paused && !audio.ended && (audio.currentTime > 0 || audio.readyState >= 2);
+      if (playIcon && playIcon.classList.contains('fa-spin')) {
+        syncPlayPauseIcons('spin');
+      } else if (isAudioPlaying) {
+        syncPlayPauseIcons('pause');
+      } else {
+        syncPlayPauseIcons('play');
+      }
 
       document.querySelectorAll('.song-card').forEach((c) => {
         const cardSongId = c.getAttribute('data-song-id');
@@ -5349,6 +5976,16 @@
         const pct = Math.min(100, Math.max(0, (current / dur) * 100));
         seekSlider.value = pct;
         seekSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.16) ${pct}%)`;
+
+        const fsCurrent = document.getElementById('fsCurrentTime');
+        const fsTotal = document.getElementById('fsTotalDuration');
+        const fsSeek = document.getElementById('fsSeekSlider');
+        if (fsCurrent) fsCurrent.textContent = formatTime(current);
+        if (fsTotal) fsTotal.textContent = formatTime(dur);
+        if (fsSeek) {
+          fsSeek.value = pct;
+          fsSeek.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.18) ${pct}%)`;
+        }
       }
     });
 
@@ -5358,6 +5995,8 @@
         : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
       if (dur > 0) {
         totalDurationEl.textContent = formatTime(dur);
+        const fsTotal = document.getElementById('fsTotalDuration');
+        if (fsTotal) fsTotal.textContent = formatTime(dur);
       }
     });
 
@@ -5367,6 +6006,8 @@
         : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
       if (dur > 0) {
         totalDurationEl.textContent = formatTime(dur);
+        const fsTotal = document.getElementById('fsTotalDuration');
+        if (fsTotal) fsTotal.textContent = formatTime(dur);
       }
     });
 
@@ -5434,25 +6075,39 @@
     }
 
     function updateVolumeUI(val) {
+      const fsVolSlider = document.getElementById('fsVolSlider');
+      const fsVolIcon = document.getElementById('fsVolIcon');
+
+      if (fsVolSlider) {
+        fsVolSlider.value = val;
+        const pct = val * 100;
+        fsVolSlider.style.background = val == 0 ? 'rgba(255, 255, 255, 0.1)' : `linear-gradient(90deg, #EC4899 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.22) ${pct}%)`;
+      }
+
       if (val == 0) {
         volIcon.className = 'fa-solid fa-volume-xmark';
         volSlider.style.background = 'rgba(255, 255, 255, 0.1)';
+        if (fsVolIcon) fsVolIcon.className = 'fa-solid fa-volume-xmark';
       } else {
         const pct = val * 100;
         volSlider.style.background = `linear-gradient(90deg, #EC4899 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.22) ${pct}%)`;
-        if (val < 0.5) {
-          volIcon.className = 'fa-solid fa-volume-low';
-        } else {
-          volIcon.className = 'fa-solid fa-volume-high';
-        }
+        const iconClass = (val < 0.5) ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
+        volIcon.className = iconClass;
+        if (fsVolIcon) fsVolIcon.className = iconClass;
       }
     }
     // Initialize volume slider gradient
     updateVolumeUI(1);
 
-    // Keyboard Shortcuts (Space: Play/Pause, Arrows: Seek ±5s)
+    // Keyboard Shortcuts (Space: Play/Pause, Arrows: Seek ±5s, Escape: Collapse Player)
     window.addEventListener('keydown', (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key === 'Escape' && typeof isFullScreenPlayerOpen !== 'undefined' && isFullScreenPlayerOpen) {
+        e.preventDefault();
+        closeFullScreenPlayer(true);
+        return;
+      }
 
       if (e.code === 'Space') {
         e.preventDefault();
@@ -5478,38 +6133,42 @@
     function toggleShuffle() {
       isShuffle = !isShuffle;
       shuffleBtn.classList.toggle('active', isShuffle);
+      const fsShuffleBtn = document.getElementById('fsShuffleBtn');
+      if (fsShuffleBtn) fsShuffleBtn.classList.toggle('active', isShuffle);
       showToast(isShuffle ? 'Shuffle Mode: ON 🔀' : 'Shuffle Mode: OFF');
     }
 
     function toggleRepeat() {
       isRepeat = !isRepeat;
       repeatBtn.classList.toggle('active', isRepeat);
+      const fsRepeatBtn = document.getElementById('fsRepeatBtn');
+      if (fsRepeatBtn) fsRepeatBtn.classList.toggle('active', isRepeat);
       showToast(isRepeat ? 'Repeat Mode: Track Repeat ON 🔁' : 'Repeat Mode: OFF');
     }
 
     // Audio Event Synchronization
     audio.addEventListener('play', () => {
-      playIcon.className = 'fa-solid fa-pause';
+      syncPlayPauseIcons('pause');
       updatePlayerCardState();
     });
 
     audio.addEventListener('playing', () => {
-      playIcon.className = 'fa-solid fa-pause';
+      syncPlayPauseIcons('pause');
       updatePlayerCardState();
     });
 
     audio.addEventListener('pause', () => {
-      playIcon.className = 'fa-solid fa-play';
+      syncPlayPauseIcons('play');
       updatePlayerCardState();
     });
 
     audio.addEventListener('waiting', () => {
-      playIcon.className = 'fa-solid fa-circle-notch fa-spin';
+      syncPlayPauseIcons('spin');
     });
 
     audio.addEventListener('canplay', () => {
       if (!audio.paused) {
-        playIcon.className = 'fa-solid fa-pause';
+        syncPlayPauseIcons('pause');
       }
     });
 
@@ -5524,7 +6183,7 @@
 
     audio.addEventListener('error', (e) => {
       console.warn('Audio element error:', audio.error);
-      playIcon.className = 'fa-solid fa-play';
+      syncPlayPauseIcons('play');
       updatePlayerCardState();
       showToast('Audio load karne mein issue aaya.');
     });
@@ -5560,22 +6219,22 @@
       }
 
       if (audio.paused) {
-        playIcon.className = 'fa-solid fa-circle-notch fa-spin';
+        syncPlayPauseIcons('spin');
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.then(() => {
-            playIcon.className = 'fa-solid fa-pause';
+            syncPlayPauseIcons('pause');
             updatePlayerCardState();
           }).catch(err => {
             if (err && err.name === 'AbortError') return;
             console.warn('Play error:', err);
-            playIcon.className = 'fa-solid fa-play';
+            syncPlayPauseIcons('play');
             updatePlayerCardState();
           });
         }
       } else {
         audio.pause();
-        playIcon.className = 'fa-solid fa-play';
+        syncPlayPauseIcons('play');
         updatePlayerCardState();
       }
     }
@@ -5724,8 +6383,229 @@
       });
     }
 
+    // ==========================================
+    // FULL-SCREEN EXPANDABLE NOW PLAYING ENGINE
+    // ==========================================
+    let isFullScreenPlayerOpen = false;
+    let fsTouchStartY = 0;
+    let fsTouchStartX = 0;
+    let fsTouchCurrentY = 0;
+    let fsIsDragging = false;
+
+    function syncPlayPauseIcons(state) {
+      const fsIcon = document.getElementById('fsPlayIcon');
+      let iconClass = 'fa-solid fa-play';
+      if (state === 'spin') {
+        iconClass = 'fa-solid fa-circle-notch fa-spin';
+      } else if (state === 'pause') {
+        iconClass = 'fa-solid fa-pause';
+      } else {
+        iconClass = 'fa-solid fa-play';
+      }
+      if (playIcon) playIcon.className = iconClass;
+      if (fsIcon) fsIcon.className = iconClass;
+    }
+
+    function openFullScreenPlayer() {
+      const fsPlayer = document.getElementById('fullScreenPlayer');
+      if (!fsPlayer || isFullScreenPlayerOpen) return;
+
+      isFullScreenPlayerOpen = true;
+      syncFullScreenPlayerUI();
+
+      fsPlayer.style.transform = '';
+      fsPlayer.style.transition = '';
+      fsPlayer.classList.add('open');
+      fsPlayer.setAttribute('aria-hidden', 'false');
+
+      // Sync with history so mobile / browser gesture back button minimizes player
+      try {
+        window.history.pushState({ type: 'fullscreen_player' }, '', '#nowplaying');
+      } catch (e) {}
+    }
+
+    function closeFullScreenPlayer(fromUserAction = false) {
+      const fsPlayer = document.getElementById('fullScreenPlayer');
+      if (!fsPlayer || !isFullScreenPlayerOpen) return;
+
+      isFullScreenPlayerOpen = false;
+      fsPlayer.style.transform = '';
+      fsPlayer.classList.remove('open');
+      fsPlayer.setAttribute('aria-hidden', 'true');
+
+      if (fromUserAction && window.history.state && window.history.state.type === 'fullscreen_player') {
+        try {
+          window.history.back();
+        } catch (e) {}
+      }
+    }
+
+    function syncFullScreenPlayerUI() {
+      const song = currentPlayingSong || (currentQueueIndex >= 0 ? playbackQueue[currentQueueIndex] : null);
+      const fsTitle = document.getElementById('fsPlayerTitle');
+      const fsArtist = document.getElementById('fsPlayerArtist');
+      const fsThumb = document.getElementById('fsPlayerThumb');
+      const fsAmbient = document.getElementById('fsAmbientBg');
+      const fsFavBtn = document.getElementById('fsPlayerFavBtn');
+      const fsShuffleBtn = document.getElementById('fsShuffleBtn');
+      const fsRepeatBtn = document.getElementById('fsRepeatBtn');
+      const fsVolSlider = document.getElementById('fsVolSlider');
+      const fsVolIcon = document.getElementById('fsVolIcon');
+
+      if (song) {
+        if (fsTitle) fsTitle.textContent = song.name || 'Unknown Track';
+        if (fsArtist) fsArtist.textContent = song.artist || 'TejiMusic';
+        const thumb = song.displayThumb || (song.image && song.image.length > 10 ? song.image : getFallbackCover(song.name));
+        if (fsThumb) fsThumb.src = thumb;
+        if (fsAmbient) fsAmbient.style.backgroundImage = `url("${thumb}")`;
+
+        const isFav = favorites.some(f => f.id === song.id);
+        if (fsFavBtn) {
+          fsFavBtn.innerHTML = `<i class="fa-${isFav ? 'solid' : 'regular'} fa-heart" style="${isFav ? 'color:var(--rose)' : ''}"></i>`;
+        }
+      }
+
+      const isAudioPlaying = !audio.paused && !audio.ended && (audio.currentTime > 0 || audio.readyState >= 2);
+      if (playIcon && playIcon.classList.contains('fa-spin')) {
+        syncPlayPauseIcons('spin');
+      } else if (isAudioPlaying) {
+        syncPlayPauseIcons('pause');
+      } else {
+        syncPlayPauseIcons('play');
+      }
+
+      if (fsShuffleBtn) fsShuffleBtn.classList.toggle('active', isShuffle);
+      if (fsRepeatBtn) fsRepeatBtn.classList.toggle('active', isRepeat);
+
+      if (fsVolSlider) fsVolSlider.value = audio.volume;
+      if (fsVolIcon) {
+        if (audio.volume === 0) fsVolIcon.className = 'fa-solid fa-volume-xmark';
+        else if (audio.volume < 0.5) fsVolIcon.className = 'fa-solid fa-volume-low';
+        else fsVolIcon.className = 'fa-solid fa-volume-high';
+      }
+
+      syncFsSeeker();
+    }
+
+    function syncFsSeeker() {
+      const fsCurrent = document.getElementById('fsCurrentTime');
+      const fsTotal = document.getElementById('fsTotalDuration');
+      const fsSlider = document.getElementById('fsSeekSlider');
+      if (!fsSlider) return;
+
+      const current = audio.currentTime || 0;
+      const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+
+      if (fsCurrent) fsCurrent.textContent = formatTime(current);
+
+      if (dur > 0 && isFinite(dur)) {
+        if (fsTotal) fsTotal.textContent = formatTime(dur);
+        const pct = Math.min(100, Math.max(0, (current / dur) * 100));
+        if (!isSeeking) {
+          fsSlider.value = pct;
+          fsSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.18) ${pct}%)`;
+        }
+      }
+    }
+
+    function onFsSeekInput(val) {
+      isSeeking = true;
+      const pct = parseFloat(val) || 0;
+      const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+
+      if (dur > 0 && isFinite(dur)) {
+        const seekTime = (pct / 100) * dur;
+        const fsCurrent = document.getElementById('fsCurrentTime');
+        if (fsCurrent) fsCurrent.textContent = formatTime(seekTime);
+        currentTimeEl.textContent = formatTime(seekTime);
+      }
+
+      const fsSlider = document.getElementById('fsSeekSlider');
+      if (fsSlider) {
+        fsSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.18) ${pct}%)`;
+      }
+      seekSlider.value = pct;
+      seekSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.16) ${pct}%)`;
+    }
+
+    // Touch Swipe Down Gesture to Minimize Full Screen Player
+    function initFullScreenPlayerGestures() {
+      const fsPlayer = document.getElementById('fullScreenPlayer');
+      if (!fsPlayer) return;
+
+      fsPlayer.addEventListener('touchstart', (e) => {
+        if (e.target.closest('input[type="range"]')) return;
+        if (e.touches.length !== 1) return;
+
+        fsTouchStartY = e.touches[0].clientY;
+        fsTouchStartX = e.touches[0].clientX;
+        fsTouchCurrentY = fsTouchStartY;
+        fsIsDragging = false;
+      }, { passive: true });
+
+      fsPlayer.addEventListener('touchmove', (e) => {
+        if (e.target.closest('input[type="range"]')) return;
+        if (e.touches.length !== 1) return;
+
+        fsTouchCurrentY = e.touches[0].clientY;
+        const deltaY = fsTouchCurrentY - fsTouchStartY;
+        const deltaX = Math.abs(e.touches[0].clientX - fsTouchStartX);
+
+        if (deltaY > 12 && deltaY > deltaX) {
+          fsIsDragging = true;
+          fsPlayer.style.transition = 'none';
+          fsPlayer.style.transform = `translateY(${deltaY}px)`;
+        }
+      }, { passive: true });
+
+      fsPlayer.addEventListener('touchend', (e) => {
+        if (!fsIsDragging) return;
+        fsIsDragging = false;
+
+        const deltaY = fsTouchCurrentY - fsTouchStartY;
+        fsPlayer.style.transition = 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+
+        if (deltaY > 100) {
+          closeFullScreenPlayer(true);
+        } else {
+          fsPlayer.style.transform = 'translateY(0)';
+        }
+      }, { passive: true });
+
+      // Guaranteed Seeker Release Safeguards for Full Screen Seeker
+      const fsSeekSlider = document.getElementById('fsSeekSlider');
+      if (fsSeekSlider) {
+        fsSeekSlider.addEventListener('pointerdown', () => { isSeeking = true; });
+        fsSeekSlider.addEventListener('touchstart', () => { isSeeking = true; }, { passive: true });
+        fsSeekSlider.addEventListener('pointerup', (e) => commitSeek(e.target.value));
+        fsSeekSlider.addEventListener('touchend', (e) => commitSeek(e.target.value));
+      }
+    }
+
+    // Attach Click Listener to Bottom Player Bar to Expand on Click
+    function initBottomPlayerBarClick() {
+      const playerBarElem = document.getElementById('playerBar');
+      if (!playerBarElem) return;
+
+      playerBarElem.addEventListener('click', (e) => {
+        // If clicking interactive buttons, inputs, links, sliders - do not expand
+        if (e.target.closest('button, input, a, .ctrl-btn, .play-pause-btn, .fav-btn, .add-pl-btn, .vol-wrap, .seek-slider-wrap')) {
+          return;
+        }
+        openFullScreenPlayer();
+      });
+    }
+
     // Initialize User Base UI
     updateUserUI();
+
+    // Initialize Full-Screen Expandable Player
+    initFullScreenPlayerGestures();
+    initBottomPlayerBarClick();
 
     // Default Load: Home
     fetchSongs('home');
