@@ -53,7 +53,7 @@ TRENDING_PRESETS = {
     "sukhmani": "Sukhmani Sahib Full Path",
     "dhadrianwale": "Bhai Ranjit Singh Ji Dhadrianwale",
     "japji_sartaj": "Satinder Sartaaj Japji Sahib",
-    "sleeping": "Relaxing Sleep",
+    "funk": "Top Funk Hits",
     "bhangra": "Top Punjabi Bhangra Hits",
     "bhangra_2025": "Latest Punjabi Bhangra Songs 2025",
     "bhangra_2024": "Punjabi Bhangra Songs 2024",
@@ -154,11 +154,17 @@ def search_jiosaavn(query, page=1, fetch_depth=2):
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Mukesh Golden Hits')}",
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=25&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Lata Mangeshkar Evergreen Hits')}",
         ]
+    elif q_lower == 'funk' and page == 1:
+        query_urls = [
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Top Funk Hits')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=35&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Brazilian Phonk Funk')}",
+            f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=30&p=1&_marker=0&ctx=android&q={urllib.parse.quote('Funk Groove Disco')}",
+        ]
     else:
         pages_to_fetch = [page]
         if fetch_depth > 1:
             pages_to_fetch.append(page + 1)
-            if q_lower in ['home', 'punjabi', 'hindi', 'bhangra', 'hindi_mix', 'hindi_90s', 'hindi_80s', 'hindi_70s', 'hindi_2000s', 'hindi_2010s', 'hindi_2026', 'hindi_classic']:
+            if q_lower in ['home', 'punjabi', 'hindi', 'bhangra', 'funk', 'hindi_mix', 'hindi_90s', 'hindi_80s', 'hindi_70s', 'hindi_2000s', 'hindi_2010s', 'hindi_2026', 'hindi_classic']:
                 pages_to_fetch.append(page + 2)
         query_urls = [
             f"https://www.jiosaavn.com/api.php?__call=search.getResults&_format=json&n=50&p={p_num}&_marker=0&ctx=android&q={encoded_query}"

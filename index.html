@@ -274,6 +274,67 @@
       filter: drop-shadow(0 0 8px var(--accent-glow));
     }
 
+    /* Subcategories Accordion / Nested Navigation */
+    .nav-item-parent {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .nav-parent-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .sub-arrow {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      transition: transform 0.25s ease, color 0.2s ease;
+      margin-left: auto;
+    }
+    .nav-item-parent.open .sub-arrow {
+      transform: rotate(180deg);
+      color: #f59e0b;
+    }
+    .sub-nav-group {
+      display: none;
+      flex-direction: column;
+      gap: 0.2rem;
+      padding-left: 0.75rem;
+      margin: 0.2rem 0 0.4rem 0.6rem;
+      border-left: 2px solid rgba(245, 158, 11, 0.4);
+      animation: fadeIn 0.2s ease;
+    }
+    .sub-nav-group.open {
+      display: flex;
+    }
+    .sub-nav-item {
+      padding: 0.55rem 0.8rem !important;
+      font-size: 0.84rem !important;
+      border-radius: 10px !important;
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .sub-nav-item i {
+      font-size: 0.95rem !important;
+      width: 18px !important;
+    }
+    .sub-nav-item:hover {
+      background: rgba(245, 158, 11, 0.12) !important;
+      color: #fff !important;
+    }
+    .sub-nav-item.active {
+      background: rgba(245, 158, 11, 0.2) !important;
+      border-left: 3px solid #f59e0b !important;
+      color: #fff !important;
+      box-shadow: 0 2px 14px rgba(245, 158, 11, 0.25) !important;
+    }
+    .sub-nav-item.active i {
+      color: #f59e0b !important;
+      filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6)) !important;
+    }
+
     .badge-pill {
       margin-left: auto;
       background: var(--accent-grad);
@@ -2101,85 +2162,113 @@
         <!-- Devotional & Spiritual -->
         <div class="nav-section-title">Devotional & Spiritual</div>
         <div class="nav-group">
-          <div class="nav-item" id="nav-gurbani" onclick="navSelect('gurbani', 'ੴ Punjabi Shabad Gurbani', this)">
-            <i class="fa-solid fa-hands-praying" style="color: #f59e0b;"></i>
-            <span>Gurbani Kirtan</span>
-            <span class="badge-sikh">ੴ Pure</span>
+          <!-- Gurbani with Subcategories Accordion -->
+          <div class="nav-item nav-item-parent" id="nav-gurbani-parent" onclick="toggleGurbaniMenu(event)">
+            <div class="nav-parent-title">
+              <i class="fa-solid fa-hands-praying" style="color: #f59e0b;"></i>
+              <span>ੴ Gurbani & Path</span>
+            </div>
+            <span class="badge-sikh" style="margin-left: auto; margin-right: 6px;">5 Sections</span>
+            <i class="fa-solid fa-chevron-down sub-arrow" id="gurbaniSubArrow"></i>
           </div>
-          <div class="nav-item" id="nav-sehaj-path" onclick="navSelect('sehaj_path', 'ੴ Sri Guru Granth Sahib Ji Sehaj Path', this)">
-            <i class="fa-solid fa-book-bookmark" style="color: #f59e0b;"></i>
-            <span>Sri Sehaj Path</span>
-            <span class="badge-sikh">ੴ Ang 1-1430</span>
-          </div>
-          <div class="nav-item" id="nav-nitnem" onclick="navSelect('nitnem', 'ੴ Sampooran Nitnem & Sukhmani Sahib', this)">
-            <i class="fa-solid fa-sun" style="color: #f59e0b;"></i>
-            <span>Nitnem & Sukhmani</span>
-            <span class="badge-sikh">ੴ Full Path</span>
-          </div>
-          <div class="nav-item" id="nav-dhadrianwale" onclick="navSelect('dhadrianwale', 'ੴ Bhai Ranjit Singh Ji Dhadrianwale', this)">
-            <i class="fa-solid fa-microphone-lines" style="color: #f59e0b;"></i>
-            <span>Dhadrianwale</span>
-            <span class="badge-sikh">ੴ Diwan</span>
-          </div>
-          <div class="nav-item" id="nav-japji-sartaj" onclick="navSelect('japji_sartaj', 'ੴ Japji Sahib (Satinder Sartaaj)', this)">
-            <i class="fa-solid fa-book-open" style="color: #f59e0b;"></i>
-            <span>Japji Sahib</span>
-            <span class="badge-sikh">ੴ Sartaaj</span>
+          <div class="sub-nav-group" id="gurbaniSubNav">
+            <div class="nav-item sub-nav-item" id="nav-gurbani" onclick="navSelect('gurbani', 'ੴ Punjabi Shabad Gurbani', this)">
+              <i class="fa-solid fa-music" style="color: #f59e0b;"></i>
+              <span>Shabad Kirtan</span>
+              <span class="badge-sikh">Pure</span>
+            </div>
+            <div class="nav-item sub-nav-item" id="nav-sehaj-path" onclick="navSelect('sehaj_path', 'ੴ Sri Guru Granth Sahib Ji Sehaj Path', this)">
+              <i class="fa-solid fa-book-bookmark" style="color: #f59e0b;"></i>
+              <span>Sri Sehaj Path</span>
+              <span class="badge-sikh">Ang 1-1430</span>
+            </div>
+            <div class="nav-item sub-nav-item" id="nav-nitnem" onclick="navSelect('nitnem', 'ੴ Sampooran Nitnem & Sukhmani Sahib', this)">
+              <i class="fa-solid fa-sun" style="color: #f59e0b;"></i>
+              <span>Nitnem & Sukhmani</span>
+              <span class="badge-sikh">Full Path</span>
+            </div>
+            <div class="nav-item sub-nav-item" id="nav-dhadrianwale" onclick="navSelect('dhadrianwale', 'ੴ Bhai Ranjit Singh Ji Dhadrianwale', this)">
+              <i class="fa-solid fa-microphone-lines" style="color: #f59e0b;"></i>
+              <span>Dhadrianwale Diwan</span>
+              <span class="badge-sikh">Katha</span>
+            </div>
+            <div class="nav-item sub-nav-item" id="nav-japji-sartaj" onclick="navSelect('japji_sartaj', 'ੴ Japji Sahib (Satinder Sartaaj)', this)">
+              <i class="fa-solid fa-book-open" style="color: #f59e0b;"></i>
+              <span>Japji Sahib</span>
+              <span class="badge-sikh">Sartaaj</span>
+            </div>
           </div>
         </div>
 
         <!-- Genres & Moods -->
         <div class="nav-section-title">Genres & Moods</div>
         <div class="nav-group">
-          <div class="nav-item" id="nav-bhangra" onclick="navSelect('bhangra', '🥁 Punjabi Bhangra Hits', this)">
-            <i class="fa-solid fa-drum" style="color: #f97316;"></i>
-            <span>Bhangra Hits</span>
-            <span class="badge-bhangra">Year-Wise</span>
-          </div>
-          <div class="nav-item" id="nav-haryanvi" onclick="navSelect('haryanvi', '🚜 Haryanvi Hits', this)">
-            <i class="fa-solid fa-tractor" style="color: #22c55e;"></i>
-            <span>Haryanvi Hits</span>
-            <span class="badge-pill" style="background: linear-gradient(135deg, #16a34a, #22c55e);">Desi</span>
-          </div>
-          <div class="nav-item" id="nav-bhojpuri" onclick="navSelect('bhojpuri', '🌶️ Bhojpuri Hits', this)">
-            <i class="fa-solid fa-fire-flame-curved" style="color: #ef4444;"></i>
-            <span>Bhojpuri Hits</span>
-            <span class="badge-pill" style="background: linear-gradient(135deg, #ef4444, #f97316);">Dhamaka</span>
-          </div>
-          <div class="nav-item" id="nav-sleeping" onclick="navSelect('sleeping', '🌙 Sleeping Music & Relaxation', this)">
-            <i class="fa-solid fa-moon" style="color: #818cf8;"></i>
-            <span>Sleeping Music</span>
-            <span class="badge-pill" style="background: linear-gradient(135deg, #6366f1, #8b5cf6);">Zzz</span>
-          </div>
-          <div class="nav-item" id="nav-punjabi" onclick="navSelect('punjabi', '🌾 Punjabi Hits', this)">
-            <i class="fa-solid fa-fire"></i>
-            <span>Punjabi Hits</span>
-          </div>
-          <div class="nav-item" id="nav-punjabi-dj" onclick="navSelect('punjabi_dj', '🔥 Punjabi DJ Remix Collection', this)">
-            <i class="fa-solid fa-compact-disc" style="color: #ec4899;"></i>
-            <span>DJ Punjabi Remix</span>
-            <span class="badge-pill" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">Bass</span>
-          </div>
+          <!-- 1. Hindi & Bollywood -->
           <div class="nav-item" id="nav-hindi" onclick="navSelect('hindi', '🇮🇳 Bollywood & Hindi Eras', this)">
             <i class="fa-solid fa-film" style="color: #fbbf24;"></i>
             <span>Hindi & Bollywood</span>
             <span class="badge-pill" style="background: linear-gradient(135deg, #f59e0b, #ef4444);">Year-Wise</span>
           </div>
+
+          <!-- 2. Punjabi Hits -->
+          <div class="nav-item" id="nav-punjabi" onclick="navSelect('punjabi', '🌾 Punjabi Hits 2026', this)">
+            <i class="fa-solid fa-fire" style="color: #f97316;"></i>
+            <span>Punjabi Hits</span>
+            <span class="badge-pill">Hot</span>
+          </div>
+
+          <!-- 3. Bhangra Hits -->
+          <div class="nav-item" id="nav-bhangra" onclick="navSelect('bhangra', '🥁 Punjabi Bhangra Hits', this)">
+            <i class="fa-solid fa-drum" style="color: #f97316;"></i>
+            <span>Bhangra Hits</span>
+            <span class="badge-bhangra">Year-Wise</span>
+          </div>
+
+          <!-- 4. DJ Punjabi Remix -->
+          <div class="nav-item" id="nav-punjabi-dj" onclick="navSelect('punjabi_dj', '🔥 Punjabi DJ Remix Collection', this)">
+            <i class="fa-solid fa-compact-disc" style="color: #ec4899;"></i>
+            <span>DJ Punjabi Remix</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">Bass</span>
+          </div>
+
+          <!-- 5. LOFI Midnight -->
+          <div class="nav-item" id="nav-lofi" onclick="navSelect('lofi', '☕ Lo-Fi Midnight Chill', this)">
+            <i class="fa-solid fa-headphones" style="color: #a855f7;"></i>
+            <span>Lo-Fi Midnight</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">Chill</span>
+          </div>
+
+          <!-- 6. Haryanvi Hits -->
+          <div class="nav-item" id="nav-haryanvi" onclick="navSelect('haryanvi', '🚜 Haryanvi Hits', this)">
+            <i class="fa-solid fa-tractor" style="color: #22c55e;"></i>
+            <span>Haryanvi Hits</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #16a34a, #22c55e);">Desi</span>
+          </div>
+
+          <!-- 7. Bhojpuri Hits -->
+          <div class="nav-item" id="nav-bhojpuri" onclick="navSelect('bhojpuri', '🌶️ Bhojpuri Hits', this)">
+            <i class="fa-solid fa-pepper-hot" style="color: #ef4444;"></i>
+            <span>Bhojpuri Hits</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #ef4444, #f97316);">Dhamaka</span>
+          </div>
+
+          <!-- 8. Romantic -->
           <div class="nav-item" id="nav-romantic" onclick="navSelect('romantic', '❤️ Romantic Melodies', this)">
-            <i class="fa-solid fa-heart-pulse"></i>
+            <i class="fa-solid fa-heart-pulse" style="color: #ec4899;"></i>
             <span>Romantic</span>
           </div>
-          <div class="nav-item" id="nav-lofi" onclick="navSelect('lofi', '☕ Lo-Fi Midnight Chill', this)">
-            <i class="fa-solid fa-headphones"></i>
-            <span>Lo-Fi Midnight</span>
-          </div>
-          <div class="nav-item" id="nav-party" onclick="navSelect('party', '⚡ Party Bangers', this)">
-            <i class="fa-solid fa-bolt"></i>
-            <span>Party Bangers</span>
-          </div>
+
+          <!-- 9. English Pop -->
           <div class="nav-item" id="nav-english" onclick="navSelect('english', '🌍 English Pop Hits', this)">
-            <i class="fa-solid fa-globe"></i>
+            <i class="fa-solid fa-globe" style="color: #38bdf8;"></i>
             <span>English Pop</span>
+          </div>
+
+          <!-- 10. Funk Music -->
+          <div class="nav-item" id="nav-funk" onclick="navSelect('funk', '🕺 Funk & Phonk Bangers', this)">
+            <i class="fa-solid fa-bolt" style="color: #eab308;"></i>
+            <span>Funk Music</span>
+            <span class="badge-pill" style="background: linear-gradient(135deg, #eab308, #f59e0b);">Groove</span>
           </div>
         </div>
       </div>
@@ -2525,7 +2614,7 @@
           <button type="button" class="genre-chip" onclick="selectPlaylistGenre('romantic', this)">❤️ Romantic</button>
           <button type="button" class="genre-chip" onclick="selectPlaylistGenre('party', this)">⚡ Party</button>
           <button type="button" class="genre-chip" onclick="selectPlaylistGenre('lofi', this)">☕ Lo-Fi</button>
-          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('sleeping', this)">🌙 Sleeping</button>
+          <button type="button" class="genre-chip" onclick="selectPlaylistGenre('funk', this)">🕺 Funk</button>
           <button type="button" class="genre-chip" onclick="selectPlaylistGenre('english', this)">🌍 English</button>
           <button type="button" class="genre-chip" onclick="selectPlaylistGenre('custom', this)">✨ Custom</button>
         </div>
@@ -2621,7 +2710,7 @@
           <option value="romantic">❤️ Romantic</option>
           <option value="party">⚡ Party</option>
           <option value="lofi">☕ Lo-Fi</option>
-          <option value="sleeping">🌙 Sleeping</option>
+          <option value="funk">🕺 Funk</option>
           <option value="english">🌍 English</option>
           <option value="custom">✨ Custom</option>
         </select>
@@ -2864,7 +2953,7 @@
       'romantic': { title: '❤️ Romantic Melodies', icon: '❤️', query: 'romantic' },
       'party': { title: '⚡ Party Bangers', icon: '⚡', query: 'party' },
       'lofi': { title: '☕ Lo-Fi Midnight Chill', icon: '☕', query: 'lofi' },
-      'sleeping': { title: '🌙 Deep Sleep & Calm', icon: '🌙', query: 'sleeping' },
+      'funk': { title: '🕺 Funk & Phonk Bangers', icon: '🕺', query: 'funk' },
       'english': { title: '🌍 English Pop Hits', icon: '🌍', query: 'english' },
       'custom': { title: '✨ My Custom Mix', icon: '🎵', query: '' }
     };
@@ -3390,6 +3479,27 @@
     }
     updateFavCount();
 
+    // Gurbani Subcategories Accordion Handler
+    function toggleGurbaniMenu(event) {
+      if (event) event.stopPropagation();
+      const parent = document.getElementById('nav-gurbani-parent');
+      const subNav = document.getElementById('gurbaniSubNav');
+      if (!subNav || !parent) return;
+      const isOpen = subNav.classList.contains('open');
+      if (isOpen) {
+        subNav.classList.remove('open');
+        parent.classList.remove('open');
+      } else {
+        subNav.classList.add('open');
+        parent.classList.add('open');
+        const activeSub = subNav.querySelector('.sub-nav-item.active');
+        if (!activeSub) {
+          const firstSub = document.getElementById('nav-gurbani');
+          if (firstSub) navSelect('gurbani', 'ੴ Punjabi Shabad Gurbani', firstSub);
+        }
+      }
+    }
+
     function toggleSidebar() {
       const sb = document.getElementById('sidebar');
       const bd = document.getElementById('sidebarBackdrop');
@@ -3405,6 +3515,14 @@
 
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       if (elem) elem.classList.add('active');
+
+      const gurbaniKeys = ['gurbani', 'sehaj_path', 'nitnem', 'dhadrianwale', 'japji_sartaj'];
+      const gp = document.getElementById('nav-gurbani-parent');
+      const gs = document.getElementById('gurbaniSubNav');
+      if (gurbaniKeys.includes(key)) {
+        if (gp) gp.classList.add('open');
+        if (gs) gs.classList.add('open');
+      }
 
       activeKey = key;
       hubTitle.textContent = displayName;
@@ -3470,8 +3588,8 @@
           hubSubtitle.textContent = 'ੴ Purn Diwan, Gurmat Veechar & Shabad Kirtan • Full HD Audio Stream';
         } else if (key === 'japji_sartaj') {
           hubSubtitle.textContent = 'ੴ Japji Sahib Recited by Dr. Satinder Sartaaj • Complete 39-Min Path • 320kbps HD';
-        } else if (key === 'sleeping') {
-          hubSubtitle.textContent = '🌙 Deep Sleep Lo-Fi, Rain Sounds & 432Hz Calm Frequencies • 320kbps HD';
+        } else if (key === 'funk') {
+          hubSubtitle.textContent = '🕺 High-Energy Funk, Brazilian Phonk, Disco & Heavy Groove Bangers • 320kbps HD';
         } else if (key === 'haryanvi') {
           hubSubtitle.textContent = '🚜 Desi Haryanvi Ragni, Pop & Top Chartbusters • 320kbps HD';
         } else if (key === 'bhojpuri') {
@@ -3720,7 +3838,7 @@
       nitnem: 'ੴ Sampooran Nitnem & Sukhmani Sahib',
       dhadrianwale: 'ੴ Bhai Ranjit Singh Ji Dhadrianwale',
       japji_sartaj: 'ੴ Japji Sahib (Satinder Sartaaj)',
-      sleeping: '🌙 Sleeping Music & Relaxation',
+      funk: '🕺 Funk & Phonk Bangers',
       bhangra: '🥁 Punjabi Bhangra Hits'
     };
 
