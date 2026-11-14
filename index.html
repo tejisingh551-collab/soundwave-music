@@ -168,7 +168,7 @@
       background: rgba(0, 0, 0, 0.72);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      z-index: 9980;
+      z-index: 9990;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -2092,26 +2092,40 @@
         padding-bottom: calc(85px + env(safe-area-inset-bottom, 10px));
       }
 
-      /* Sidebar Slide-Out */
+      /* Sidebar Slide-Out (Crisp Solid Background & No Blurring) */
       .sidebar {
         position: fixed;
         left: -100%;
         top: 0;
-        width: 270px;
-        max-width: 82vw;
+        width: 275px;
+        max-width: 84vw;
         height: 100vh;
         height: 100dvh;
         padding-top: max(1.2rem, env(safe-area-inset-top));
         padding-bottom: calc(var(--player-h) + 1.5rem);
-        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background: #0f1629;
-        border-right: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 10px 0 45px rgba(0, 0, 0, 0.9);
-        z-index: 150;
+        transition: left 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        background: #0f111a !important; /* Solid crisp dark background */
+        backdrop-filter: none !important; /* Remove blur from mobile sidebar */
+        -webkit-backdrop-filter: none !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 14px 0 45px rgba(0, 0, 0, 0.95);
+        z-index: 9995 !important; /* Above backdrop overlay (9990) */
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        filter: none !important;
+        transform: translateZ(0); /* Clean sub-pixel anti-aliasing */
+        will-change: left;
       }
 
       .sidebar.open {
         left: 0;
+        transform: translateZ(0);
+      }
+
+      .sidebar,
+      .sidebar * {
+        filter: none !important;
       }
 
       .sidebar-close-btn {
@@ -3798,12 +3812,138 @@
       }
     }
 
-    function toggleSidebar() {
+    function toggleSidebar(forceOpen) {
       const sb = document.getElementById('sidebar');
       const bd = document.getElementById('sidebarBackdrop');
-      sb.classList.toggle('open');
-      if (bd) bd.classList.toggle('open', sb.classList.contains('open'));
+      if (!sb) return;
+      const willOpen = (typeof forceOpen === 'boolean') ? forceOpen : !sb.classList.contains('open');
+      sb.classList.toggle('open', willOpen);
+      if (bd) bd.classList.toggle('open', willOpen);
     }
+
+    function openSidebar() {
+      toggleSidebar(true);
+    }
+
+    function closeSidebar() {
+      toggleSidebar(false);
+    }
+
+    // ==========================================
+    // MOBILE TOUCH SWIPE GESTURES (DRAWER)
+    // ==========================================
+    function initMobileSidebarSwipeGestures() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (!sidebar) return;
+
+      let startX = 0;
+      let startY = 0;
+      let currentX = 0;
+      let currentY = 0;
+      let isEdgeSwipe = false;
+      let isCloseSwipe = false;
+      let isIntentDecided = false;
+      const EDGE_ZONE = 40; // px from left edge to activate open swipe
+      const SWIPE_THRESHOLD = 45; // min horizontal px to trigger open or close
+
+      window.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+
+        // Safeguard: do not trigger edge swipe inside bottom player bar or sliders
+        if (touch.clientY > window.innerHeight - 85) return;
+        if (e.target && e.target.closest && e.target.closest('.player-bar')) return;
+
+        startX = touch.clientX;
+        startY = touch.clientY;
+        currentX = startX;
+        currentY = startY;
+        isIntentDecided = false;
+
+        const isOpen = sidebar.classList.contains('open');
+        if (!isOpen) {
+          // If sidebar is closed, only swipe right from the left edge zone
+          if (startX <= EDGE_ZONE) {
+            isEdgeSwipe = true;
+            isCloseSwipe = false;
+          } else {
+            isEdgeSwipe = false;
+          }
+        } else {
+          // If sidebar is open, swipe left anywhere on sidebar or backdrop
+          const onSidebar = sidebar.contains(e.target);
+          const onBackdrop = backdrop && backdrop.contains(e.target);
+          if (onSidebar || onBackdrop) {
+            isCloseSwipe = true;
+            isEdgeSwipe = false;
+          } else {
+            isCloseSwipe = false;
+          }
+        }
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (e) => {
+        if (!isEdgeSwipe && !isCloseSwipe) return;
+        if (e.touches.length !== 1) return;
+
+        const touch = e.touches[0];
+        currentX = touch.clientX;
+        currentY = touch.clientY;
+
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+
+        // Determine intent: if vertical motion dominates, immediately cancel gesture
+        if (!isIntentDecided) {
+          const absX = Math.abs(diffX);
+          const absY = Math.abs(diffY);
+          if (absX > 8 || absY > 8) {
+            if (absY > absX * 1.1) {
+              // User is scrolling vertically through list or sidebar categories
+              isEdgeSwipe = false;
+              isCloseSwipe = false;
+              isIntentDecided = true;
+              return;
+            } else if (absX > absY) {
+              // User is swiping horizontally
+              isIntentDecided = true;
+            }
+          }
+        }
+      }, { passive: true });
+
+      function handleTouchEnd() {
+        if (!isEdgeSwipe && !isCloseSwipe) return;
+
+        const diffX = currentX - startX;
+        const diffY = currentY - startY;
+        const absX = Math.abs(diffX);
+        const absY = Math.abs(diffY);
+
+        if (isEdgeSwipe) {
+          // Swiped from left edge towards right: open drawer
+          if (diffX >= SWIPE_THRESHOLD && absX > absY * 0.85) {
+            openSidebar();
+          }
+        } else if (isCloseSwipe) {
+          // Swiped from right towards left: close drawer
+          if (diffX <= -SWIPE_THRESHOLD && absX > absY * 0.85) {
+            closeSidebar();
+          }
+        }
+
+        isEdgeSwipe = false;
+        isCloseSwipe = false;
+        isIntentDecided = false;
+      }
+
+      window.addEventListener('touchend', handleTouchEnd, { passive: true });
+      window.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+    }
+
+    // Initialize swipe gestures immediately
+    initMobileSidebarSwipeGestures();
 
     // Sidebar Navigation Click
     function navSelect(key, displayName, elem) {
