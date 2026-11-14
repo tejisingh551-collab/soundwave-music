@@ -4007,8 +4007,8 @@
     function updateBackBtnVisibility() {
       const btn = document.getElementById('hubBackBtn');
       if (!btn) return;
-      const isRootHome = currentNavState.type === 'nav' && currentNavState.key === 'home';
-      if (isRootHome && appNavHistory.length === 0) {
+      const isRootHome = currentNavState.type === 'nav' && (currentNavState.key === 'home' || !currentNavState.key);
+      if (isRootHome) {
         btn.style.display = 'none';
       } else {
         btn.style.display = 'inline-flex';
@@ -4044,10 +4044,10 @@
     }
 
     function appGoBack() {
-      if (window.history.state && appNavHistory.length > 0) {
+      if (appNavHistory.length > 0) {
         window.history.back();
       } else {
-        popAndRestoreNavState();
+        restoreNavState({ type: 'nav', key: 'home', displayName: '🏠 Home Trending Hits' });
       }
     }
 
@@ -4146,6 +4146,9 @@
 
     // Hardware / Browser Gesture Back Button Listener
     window.addEventListener('popstate', (event) => {
+      if (appNavHistory.length > 0) {
+        appNavHistory.pop();
+      }
       if (event.state) {
         restoreNavState(event.state);
       } else if (appNavHistory.length > 0) {
