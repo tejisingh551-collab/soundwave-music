@@ -168,7 +168,7 @@
       background: rgba(0, 0, 0, 0.72);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      z-index: 120;
+      z-index: 9980;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -651,15 +651,17 @@
       background: rgba(5, 8, 15, 0.78);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      z-index: 1000;
+      z-index: 10000;
       display: none;
       align-items: center;
       justify-content: center;
       padding: 1rem;
       animation: fadeIn 0.2s ease;
+      pointer-events: none;
     }
     .modal-backdrop.open {
       display: flex;
+      pointer-events: auto;
     }
     .user-modal-card {
       background: rgba(15, 23, 42, 0.94);
@@ -1519,16 +1521,32 @@
       left: 0;
       width: 100%;
       height: var(--player-h);
-      background: rgba(10, 14, 26, 0.92);
+      background: rgba(10, 14, 26, 0.94);
       backdrop-filter: blur(28px) saturate(180%);
       -webkit-backdrop-filter: blur(28px) saturate(180%);
       border-top: 1px solid var(--card-border);
       display: flex;
       align-items: center;
-      z-index: 100;
+      z-index: 9990;
+      pointer-events: auto !important;
       padding: 0 1.8rem;
       padding-bottom: env(safe-area-inset-bottom, 0px);
       box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    .player-bar * {
+      pointer-events: auto;
+    }
+
+    .player-meta {
+      pointer-events: none;
+    }
+
+    .player-title,
+    .player-artist,
+    .time-stamp {
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .player-container {
@@ -2388,7 +2406,7 @@
         <div class="time-seek-wrap">
           <span class="time-stamp" id="currentTime">0:00</span>
           <div class="seek-slider-wrap">
-            <input type="range" class="seek-slider" id="seekSlider" min="0" max="100" value="0" oninput="onSeekInput(this.value)" onchange="onSeekChange(this.value)" />
+            <input type="range" class="seek-slider" id="seekSlider" min="0" max="100" value="0" step="0.1" oninput="onSeekInput(this.value)" onchange="onSeekChange(this.value)" />
           </div>
           <span class="time-stamp" id="totalDuration">0:00</span>
         </div>
@@ -3078,9 +3096,15 @@
       renderSongList(currentPlaylist);
     }
 
-    function openAddToPlaylistModal(songIdx) {
-      if (songIdx < 0 || songIdx >= currentPlaylist.length) return;
-      targetSongForPlaylist = currentPlaylist[songIdx];
+    function openAddToPlaylistModal(songOrIdx) {
+      let song = null;
+      if (typeof songOrIdx === 'object' && songOrIdx !== null) {
+        song = songOrIdx;
+      } else if (typeof songOrIdx === 'number' && songOrIdx >= 0 && songOrIdx < currentPlaylist.length) {
+        song = currentPlaylist[songOrIdx];
+      }
+      if (!song) return;
+      targetSongForPlaylist = song;
 
       const thumb = document.getElementById('addToPlSongThumb');
       const title = document.getElementById('addToPlSongTitle');
@@ -3095,8 +3119,9 @@
     }
 
     function openAddToPlaylistCurrent() {
-      if (currentIndex >= 0 && currentPlaylist[currentIndex]) {
-        openAddToPlaylistModal(currentIndex);
+      const song = currentPlayingSong || (currentQueueIndex >= 0 ? playbackQueue[currentQueueIndex] : null);
+      if (song) {
+        openAddToPlaylistModal(song);
       } else {
         showToast('Please select a song first!');
       }
@@ -3257,6 +3282,9 @@
       }
     }
 
+    let currentPlayingSong = null;
+    let playbackQueue = [];
+    let currentQueueIndex = -1;
     let currentPlaylist = [];
     let currentIndex = -1;
     let favorites = getActiveUser().favorites || [];
@@ -3818,7 +3846,9 @@
         showToast('Play karne ke liye koi gaana nahi hai.');
         return;
       }
-      playSong(0);
+      playbackQueue = [...currentPlaylist];
+      currentQueueIndex = 0;
+      playSongObject(playbackQueue[0]);
       showToast('Playing All Tracks In Sequence 🎵');
     }
 
@@ -4005,8 +4035,8 @@
 
       songs.forEach((song, idx) => {
         const isFav = favorites.some(f => f.id === song.id);
-        const isCurrent = currentIndex === idx;
-        const isPlaying = isCurrent && !audio.paused;
+        const isCurrent = currentPlayingSong && (String(currentPlayingSong.id) === String(song.id));
+        const isPlaying = isCurrent && !audio.paused && !audio.ended && audio.currentTime > 0;
         const durStr = song.duration ? formatTime(song.duration) : '';
         const yearStr = song.year && song.year !== '0' && song.year.length >= 4 ? song.year : '';
 
@@ -4024,6 +4054,7 @@
         const card = document.createElement('div');
         card.className = `song-card ${isPlaying ? 'playing' : ''}`;
         card.id = `song-${idx}`;
+        card.setAttribute('data-song-id', song.id || '');
         card.innerHTML = `
           <div class="song-thumb-wrap" onclick="playSong(${idx})">
             <img src="${thumbSrc}" class="song-thumb" alt="${song.name}" loading="lazy" onerror="this.onerror=null;this.src=getFallbackCover('${encodeURIComponent(song.name)}')" />
@@ -4047,7 +4078,7 @@
           <button class="add-pl-btn" onclick="event.stopPropagation(); openAddToPlaylistModal(${idx})" title="Add to Playlist">
             <i class="fa-solid fa-list-ul"></i>
           </button>
-          <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation(); toggleFavorite(${idx})">
+          <button class="fav-btn ${isFav ? 'active' : ''}" data-song-id="${song.id || ''}" onclick="event.stopPropagation(); toggleFavorite(${idx})" title="Favorite">
             <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
           </button>
           ${activeCustomPlaylistId ? `
@@ -4060,99 +4091,187 @@
       });
     }
 
-    // Play Song
+    // Play Song from Playlist Index
     function playSong(idx) {
       if (idx < 0 || idx >= currentPlaylist.length) return;
-      currentIndex = idx;
-      const song = currentPlaylist[idx];
+      playbackQueue = [...currentPlaylist];
+      currentQueueIndex = idx;
+      playSongObject(currentPlaylist[idx]);
+    }
+
+    // Core Track Player Engine
+    function playSongObject(song) {
+      if (!song) return;
 
       if (!song.audioUrl) {
         showToast('Is gaane ka stream link available nahi hai.');
         return;
       }
 
-      playerTitle.textContent = "Loading: " + song.name + "...";
-      playerArtist.textContent = song.artist;
-      playerThumb.src = song.displayThumb || (song.image && song.image.length > 10 ? song.image : getFallbackCover(song.name));
+      currentPlayingSong = song;
+
+      // Reset seek state immediately
+      isSeeking = false;
+      seekSlider.value = 0;
+      currentTimeEl.textContent = '0:00';
+
+      // Duration fallback from metadata so time never stays 0:00
+      const initialDur = song.duration && Number(song.duration) > 0 ? Number(song.duration) : 0;
+      totalDurationEl.textContent = initialDur > 0 ? formatTime(initialDur) : '0:00';
+      seekSlider.style.background = 'rgba(255, 255, 255, 0.16)';
+
+      // Update Bottom Player Bar info immediately
+      playerTitle.textContent = song.name;
+      playerArtist.textContent = song.artist || 'TejiMusic';
+      const thumb = song.displayThumb || (song.image && song.image.length > 10 ? song.image : getFallbackCover(song.name));
+      playerThumb.src = thumb;
+
+      // Immediate loading indicator
       playIcon.className = 'fa-solid fa-circle-notch fa-spin';
 
-      audio.pause();
-      audio.src = song.audioUrl;
-      audio.load();
+      updatePlayerCardState();
+      setupMediaSession(song);
+      recordUserPlay(song);
 
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          playerTitle.textContent = song.name;
-          playIcon.className = 'fa-solid fa-pause';
-          updatePlayerCardState();
-          setupMediaSession(song);
-          recordUserPlay(song);
-        }).catch(err => {
-          console.error('Audio play error:', err);
-          playIcon.className = 'fa-solid fa-play';
-          playerTitle.textContent = song.name;
-          showToast('Playback start karne ke liye Play button dabayein.');
-        });
+      try {
+        audio.pause();
+        audio.src = song.audioUrl;
+        audio.load();
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            playIcon.className = 'fa-solid fa-pause';
+            updatePlayerCardState();
+          }).catch(err => {
+            if (err && err.name === 'AbortError') {
+              // Interrupted by another track switch - safe to ignore
+              return;
+            }
+            console.warn('Audio play error:', err);
+            playIcon.className = 'fa-solid fa-play';
+            updatePlayerCardState();
+            showToast('Playback start karne ke liye Play button dabayein.');
+          });
+        }
+      } catch (err) {
+        console.error('Audio load error:', err);
+        playIcon.className = 'fa-solid fa-play';
+        updatePlayerCardState();
       }
     }
 
+    // Synchronize All Visual Card States and Bottom Player
     function updatePlayerCardState() {
-      const song = currentPlaylist[currentIndex];
-      if (!song) return;
+      if (!currentPlayingSong) {
+        playerFavBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
+        return;
+      }
 
-      const isFav = favorites.some(f => f.id === song.id);
+      const isFav = favorites.some(f => f.id === currentPlayingSong.id);
       playerFavBtn.innerHTML = `<i class="fa-${isFav ? 'solid' : 'regular'} fa-heart" style="${isFav ? 'color:var(--rose)' : ''}"></i>`;
 
-      document.querySelectorAll('.song-card').forEach((c, i) => {
-        const isCurrentSong = i === currentIndex;
-        const isPlaying = isCurrentSong && !audio.paused;
+      const isAudioPlaying = !audio.paused && !audio.ended && (audio.currentTime > 0 || audio.readyState >= 2);
+
+      document.querySelectorAll('.song-card').forEach((c) => {
+        const cardSongId = c.getAttribute('data-song-id');
+        const isCurrentSong = cardSongId && (cardSongId === String(currentPlayingSong.id));
+        const isPlaying = isCurrentSong && isAudioPlaying;
+
         c.classList.toggle('playing', isPlaying);
-        
+
         const icon = c.querySelector('.play-overlay i');
         if (icon) {
-          icon.style.display = isPlaying ? 'none' : 'block';
-          icon.className = isCurrentSong && audio.paused ? 'fa-solid fa-play' : 'fa-solid fa-play';
+          if (isPlaying) {
+            icon.className = 'fa-solid fa-pause';
+            icon.style.display = 'none'; // equalizer bars animate via CSS
+          } else {
+            icon.className = 'fa-solid fa-play';
+            icon.style.display = 'block';
+          }
         }
       });
     }
 
-    // Time Seek Bar Updates
+    // Robust Time Seek Bar Updates
     audio.addEventListener('timeupdate', () => {
-      if (!isSeeking && audio.duration) {
-        const current = audio.currentTime;
-        const total = audio.duration;
-        const pct = (current / total) * 100;
+      if (isSeeking) return;
 
+      const current = audio.currentTime || 0;
+      const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+
+      currentTimeEl.textContent = formatTime(current);
+
+      if (dur > 0 && isFinite(dur)) {
+        totalDurationEl.textContent = formatTime(dur);
+        const pct = Math.min(100, Math.max(0, (current / dur) * 100));
         seekSlider.value = pct;
-        currentTimeEl.textContent = formatTime(current);
-        totalDurationEl.textContent = formatTime(total);
-
         seekSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.16) ${pct}%)`;
       }
     });
 
     audio.addEventListener('loadedmetadata', () => {
-      if (audio.duration) {
-        totalDurationEl.textContent = formatTime(audio.duration);
+      const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+      if (dur > 0) {
+        totalDurationEl.textContent = formatTime(dur);
       }
     });
 
+    audio.addEventListener('durationchange', () => {
+      const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+      if (dur > 0) {
+        totalDurationEl.textContent = formatTime(dur);
+      }
+    });
+
+    // Seeker Drag & Click Handlers
     function onSeekInput(val) {
       isSeeking = true;
-      if (audio.duration) {
-        const seekTime = (val / 100) * audio.duration;
+      const pct = parseFloat(val) || 0;
+      const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+
+      if (dur > 0 && isFinite(dur)) {
+        const seekTime = (pct / 100) * dur;
         currentTimeEl.textContent = formatTime(seekTime);
-        seekSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${val}%, rgba(255, 255, 255, 0.16) ${val}%)`;
       }
+      seekSlider.style.background = `linear-gradient(90deg, #8B5CF6 0%, #EC4899 ${pct}%, rgba(255, 255, 255, 0.16) ${pct}%)`;
     }
 
-    function onSeekChange(val) {
-      if (audio.duration) {
-        audio.currentTime = (val / 100) * audio.duration;
+    function commitSeek(val) {
+      const pct = parseFloat(val !== undefined ? val : seekSlider.value) || 0;
+      const dur = (audio.duration && !isNaN(audio.duration) && audio.duration > 0)
+        ? audio.duration
+        : (currentPlayingSong && currentPlayingSong.duration ? Number(currentPlayingSong.duration) : 0);
+
+      if (dur > 0 && isFinite(dur)) {
+        audio.currentTime = (pct / 100) * dur;
+        currentTimeEl.textContent = formatTime(audio.currentTime);
       }
       isSeeking = false;
     }
+
+    function onSeekChange(val) {
+      commitSeek(val);
+    }
+
+    // Guaranteed Seeker Release Safeguards (Mouse & Touch)
+    if (seekSlider) {
+      seekSlider.addEventListener('pointerdown', () => { isSeeking = true; });
+      seekSlider.addEventListener('touchstart', () => { isSeeking = true; }, { passive: true });
+      seekSlider.addEventListener('pointerup', (e) => commitSeek(e.target.value));
+      seekSlider.addEventListener('touchend', (e) => commitSeek(e.target.value));
+    }
+    window.addEventListener('pointerup', () => { if (isSeeking) commitSeek(); });
+    window.addEventListener('mouseup', () => { if (isSeeking) commitSeek(); });
+    window.addEventListener('touchend', () => { if (isSeeking) commitSeek(); });
 
     // Volume Control & Mute
     function changeVolume(val) {
@@ -4193,32 +4312,23 @@
 
     // Keyboard Shortcuts (Space: Play/Pause, Arrows: Seek ±5s)
     window.addEventListener('keydown', (e) => {
-      // Don't trigger if user is actively typing in input field
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
       if (e.code === 'Space') {
         e.preventDefault();
-        if (!audio.src) {
-          if (currentPlaylist.length > 0) playSong(0);
-          return;
-        }
-        if (audio.paused) {
-          audio.play().catch(err => console.error(err));
-          showToast('▶️ Playing', 800);
-        } else {
-          audio.pause();
-          showToast('⏸️ Paused', 800);
-        }
+        togglePlayPause();
       } else if (e.code === 'ArrowLeft') {
         e.preventDefault();
-        if (audio.duration) {
+        const dur = audio.duration || (currentPlayingSong ? Number(currentPlayingSong.duration) : 0);
+        if (dur > 0) {
           audio.currentTime = Math.max(0, audio.currentTime - 5);
           showToast('⏪ -5s', 800);
         }
       } else if (e.code === 'ArrowRight') {
         e.preventDefault();
-        if (audio.duration) {
-          audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+        const dur = audio.duration || (currentPlayingSong ? Number(currentPlayingSong.duration) : 0);
+        if (dur > 0) {
+          audio.currentTime = Math.min(dur, audio.currentTime + 5);
           showToast('⏩ +5s', 800);
         }
       }
@@ -4237,14 +4347,10 @@
       showToast(isRepeat ? 'Repeat Mode: Track Repeat ON 🔁' : 'Repeat Mode: OFF');
     }
 
-    // On Track Ended
-    audio.addEventListener('ended', () => {
-      if (isRepeat) {
-        audio.currentTime = 0;
-        audio.play();
-      } else {
-        playNext();
-      }
+    // Audio Event Synchronization
+    audio.addEventListener('play', () => {
+      playIcon.className = 'fa-solid fa-pause';
+      updatePlayerCardState();
     });
 
     audio.addEventListener('playing', () => {
@@ -4257,13 +4363,33 @@
       updatePlayerCardState();
     });
 
+    audio.addEventListener('waiting', () => {
+      playIcon.className = 'fa-solid fa-circle-notch fa-spin';
+    });
+
+    audio.addEventListener('canplay', () => {
+      if (!audio.paused) {
+        playIcon.className = 'fa-solid fa-pause';
+      }
+    });
+
+    audio.addEventListener('ended', () => {
+      if (isRepeat) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.warn(e));
+      } else {
+        playNext();
+      }
+    });
+
     audio.addEventListener('error', (e) => {
-      console.error('Audio error:', audio.error);
+      console.warn('Audio element error:', audio.error);
       playIcon.className = 'fa-solid fa-play';
+      updatePlayerCardState();
       showToast('Audio load karne mein issue aaya.');
     });
 
-    // Native MediaSession for iPhone Lock Screen
+    // Native MediaSession for iPhone & Android Lock Screen
     function setupMediaSession(song) {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -4280,41 +4406,90 @@
       }
     }
 
+    // Responsive Play/Pause Button
     function togglePlayPause() {
       if (!audio.src) {
-        if (currentPlaylist.length > 0) playSong(0);
+        if (currentPlaylist.length > 0) {
+          playSong(0);
+        } else if (playbackQueue.length > 0) {
+          playSongObject(playbackQueue[0]);
+        } else {
+          showToast('Play karne ke liye pehle koi gaana select karein.');
+        }
         return;
       }
 
       if (audio.paused) {
-        audio.play().catch(e => console.error(e));
+        playIcon.className = 'fa-solid fa-circle-notch fa-spin';
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            playIcon.className = 'fa-solid fa-pause';
+            updatePlayerCardState();
+          }).catch(err => {
+            if (err && err.name === 'AbortError') return;
+            console.warn('Play error:', err);
+            playIcon.className = 'fa-solid fa-play';
+            updatePlayerCardState();
+          });
+        }
       } else {
         audio.pause();
+        playIcon.className = 'fa-solid fa-play';
+        updatePlayerCardState();
       }
     }
 
+    // Responsive Next & Previous Controls (Queue-Aware)
     function playNext() {
-      if (currentPlaylist.length === 0) return;
+      if (playbackQueue.length === 0) {
+        if (currentPlaylist.length > 0) {
+          playbackQueue = [...currentPlaylist];
+          currentQueueIndex = 0;
+        } else {
+          showToast('Koi playlist loaded nahi hai.');
+          return;
+        }
+      }
+
       let next;
       if (isShuffle) {
-        next = Math.floor(Math.random() * currentPlaylist.length);
+        next = Math.floor(Math.random() * playbackQueue.length);
       } else {
-        next = currentIndex + 1;
-        if (next >= currentPlaylist.length) next = 0;
+        next = currentQueueIndex + 1;
+        if (next >= playbackQueue.length) next = 0;
       }
-      playSong(next);
+      currentQueueIndex = next;
+      playSongObject(playbackQueue[next]);
     }
 
     function playPrevious() {
-      if (currentPlaylist.length === 0) return;
-      let prev = currentIndex - 1;
-      if (prev < 0) prev = currentPlaylist.length - 1;
-      playSong(prev);
+      if (playbackQueue.length === 0) {
+        if (currentPlaylist.length > 0) {
+          playbackQueue = [...currentPlaylist];
+          currentQueueIndex = 0;
+        } else {
+          showToast('Koi playlist loaded nahi hai.');
+          return;
+        }
+      }
+
+      let prev = currentQueueIndex - 1;
+      if (prev < 0) prev = playbackQueue.length - 1;
+      currentQueueIndex = prev;
+      playSongObject(playbackQueue[prev]);
     }
 
-    // Favorites
-    function toggleFavorite(idx) {
-      const song = currentPlaylist[idx];
+    // Dynamic Favorites Support
+    function toggleFavorite(songOrIdx) {
+      let song = null;
+      if (typeof songOrIdx === 'object' && songOrIdx !== null) {
+        song = songOrIdx;
+      } else if (typeof songOrIdx === 'number' && songOrIdx >= 0 && songOrIdx < currentPlaylist.length) {
+        song = currentPlaylist[songOrIdx];
+      }
+      if (!song) return;
+
       const existingIdx = favorites.findIndex(f => f.id === song.id);
       if (existingIdx > -1) {
         favorites.splice(existingIdx, 1);
@@ -4326,21 +4501,26 @@
       const u = getActiveUser();
       u.favorites = favorites;
       saveUsersData();
+      updatePlayerCardState();
 
       if (hubTitle.textContent.includes('Favorites')) {
         currentPlaylist = favorites;
         renderSongList(favorites);
       } else {
-        renderSongList(currentPlaylist);
+        document.querySelectorAll(`.fav-btn[data-song-id="${song.id}"]`).forEach(btn => {
+          const isFav = favorites.some(f => f.id === song.id);
+          btn.classList.toggle('active', isFav);
+          btn.innerHTML = `<i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>`;
+        });
       }
     }
 
     function toggleFavoriteCurrent() {
-      if (currentIndex >= 0 && currentPlaylist[currentIndex]) {
-        toggleFavorite(currentIndex);
-        const song = currentPlaylist[currentIndex];
-        const isFav = favorites.some(f => f.id === song.id);
-        playerFavBtn.innerHTML = `<i class="fa-${isFav ? 'solid' : 'regular'} fa-heart" style="${isFav ? 'color:var(--rose)' : ''}"></i>`;
+      const song = currentPlayingSong || (currentQueueIndex >= 0 ? playbackQueue[currentQueueIndex] : null);
+      if (song) {
+        toggleFavorite(song);
+      } else {
+        showToast('Pehle koi gaana play karein favorites me add karne ke liye!');
       }
     }
 
